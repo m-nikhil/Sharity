@@ -1,0 +1,317 @@
+schemas:
+  User:
+    type: "object"
+    required:
+    - "email"
+    - "password"
+    - "firstName"
+    - "lastName"
+    - "dateOfBirth"
+    - "phone"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        readOnly: true
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+        format: "email"
+      password:
+        type: "string"
+        format: "password"
+        writeOnly: true
+      phone:
+        type: "string"
+        pattern: '^\d{10}$'
+      panNumber:
+        type: "string"
+      dateOfBirth:
+        type: "string"
+        format: "date"
+      active:
+        type: "boolean"
+        description: "User Status"
+        readOnly: true
+      lastlogin:
+        type: "string"
+        format: "date-time"
+        readOnly: true
+      isAdmin:
+        type: "boolean"
+        readOnly: true
+      addedBy:
+        type: "object"
+        description: "Date when user is converted to admin"
+        properties:
+          firstName:
+            type: "string"
+          lastName:
+            type: "string"
+          email:
+            type: "string"
+      transations:
+        type: "array"
+        readOnly: true
+        items:
+          type: "object"
+          properties:
+            to:
+              type: "string"
+              format: "email"
+            amount:
+              type: "integer"
+            success:
+              type: "boolean"
+            datetime:
+              type: "string"
+              format: "date-time"
+        
+
+  Admin:
+    type: "object"
+    required:
+    - "email"
+    - "password"
+    - "firstName"
+    - "lastName"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        readOnly: true
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+        format: "email"
+      password:
+        type: "string"
+        format: "password"
+        writeOnly: true
+      active:
+        type: "boolean"
+        readOnly: true
+
+      lastlogin:
+        type: "string"
+        format: "date-time"
+        readOnly: true
+        
+  Location:
+    type: "object"
+    properties:
+      city:
+        type: "string"
+      street:
+        type: "string"
+      address:
+        type: "string"
+      latitude:
+        type: "string"
+      longitute:
+        type: "string"
+        
+        
+  BankDetails:
+    type: "object"
+    properties:
+      accountName: 
+        type: "string"
+      accountNumber:
+        type: "string"
+      IFSCcode:
+        type: "string"
+      PanNumber:
+        type: "string"
+        
+  Documents:
+    type: "object"
+    description: "Documents URLs"
+    properties:
+      Doc-12Aform: 
+        type: "string"
+      Doc-PanCard-Ngo:
+        type: "string"
+      Doc-PanCard-owner:
+        type: "string"
+      Doc-IDproof-owner:
+        type: "string"
+      Doc-80TaxDecductionCertificate:
+        type: "string"
+      Doc-cancelledCheckLeaf:
+        type: "string"
+
+  
+  requirement:
+        type: "object"
+        properties:
+          name: 
+            type: "string"
+          quantity: 
+            type: "integer"
+            minimum: 1
+          complete:
+            type: "boolean"
+          createdDate:
+            type: "string"
+            format: "date-time"
+          completedDate:
+            type: "string"
+            format: "date-time"
+          completedBy:
+            type: "string"
+            format: "email"
+            description: "Email of donated user"
+            
+  Type:
+    description: "Type of Ngo"
+    type: "string"
+    
+  Tag:
+    description: "Add tags to ngo to facilitate search"
+    type: "string"
+    
+  Ngo:
+    type: "object"
+    properties: 
+      id:
+        type: "integer"
+        format: "int64"
+        readOnly: true
+      Approved:
+        type: "boolean"
+      name:
+        type: "string"
+      email:
+        type: "string"
+        format: "email"
+      password:
+        type: "string"
+        format: "password"
+        writeOnly: true
+      phone:
+        type: "string"
+        pattern: '^\d{10}$'
+      bankDetails:
+        $ref: "#schemas/BankDetails"
+      documents:
+        $ref: '#schemas/Documents'
+      dateJoined:
+        type: "string"
+        format: "date-time"
+        readOnly: true
+      description:
+        type: "string"
+      type:
+        $ref: "#schemas/Type"
+      tags:
+        type: "array"
+        items:
+          $ref: "#schemas/Tag"
+      numberOfPeopleStaying:
+        type: "integer"
+        minimum: 1
+      location:
+        $ref: "#schemas/Location"
+      amountRaised:
+        type: "integer"
+        format: "int64"
+        minimum: 0
+      likes:
+        type: "integer"
+        format: "int64"
+        minimum: 0
+      donatedList:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            email:
+              type: "string"
+              format: "email"
+            firstName:
+              type: "string"
+            secondame:
+              type: "string"
+            donatedAmount:
+              type: "integer"
+              format: "int64"
+              minimum: 1
+            datetime:
+              type: "string"
+              format: "date-time"
+      mainImageUrl:
+        type: "string"
+      imagesUrl:
+        type: "array"
+        items:
+            type: "string"
+      requirementList:
+        $ref: "#schemas/requirement"
+  
+  history:
+    type: "array"
+    items:
+      $ref: "#schemas/Ngo"
+    
+      
+  Transaction:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        from: 
+          type: "string"
+          format: "email"
+        to:
+          type: "string"
+          format: "email"
+        amount:
+          type: "integer"
+        success:
+          type: "boolean"
+        datetime:
+          type: "string"
+          format: "date-time"
+
+  Pet:
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        example: fluffy
+      tag:
+        type: string
+        example: red
+      id:
+        type: integer
+        format: int64
+        readOnly: true
+        example: 1
+      last_updated:
+        type: string
+        readOnly: true
+        example: 2019-01-16T23:52:54.309102Z
+
+  Pets:
+    type: array
+    items:
+      $ref: "#schemas/Pet"
+
+  Error:
+    required:
+      - code
+      - message
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string

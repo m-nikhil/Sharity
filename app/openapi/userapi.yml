@@ -1,0 +1,127 @@
+user:
+    get:
+      summary: List all pets
+      tags:
+        - pets
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: An paged array of pets
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Pets"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+    post:
+      summary: Create a pet
+      tags:
+        - pets
+      requestBody:
+        description: Pet to add to the system
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas.yml#/schemas/Pet"
+      responses:
+        '201':
+          description: Pet record interpreted by backend
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Pet"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+
+user/{userId}:
+    get:
+      summary: Info for a specific pet
+      tags:
+        - pets
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The id of the pet to retrieve
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Pet"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+    put:
+      summary: Update a pet
+      tags:
+        - pets
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The id of the pet to update
+          schema:
+            type: integer
+      requestBody:
+        description: Pet data to update
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas.yml#/schemas/Pet"
+      responses:
+        '201':
+          description: Pet record interpreted by backend
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Pet"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+    delete:
+      summary: Update a pet
+      tags:
+        - pets
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The id of the pet to update
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Null response
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"

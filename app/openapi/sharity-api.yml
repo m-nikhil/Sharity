@@ -1,0 +1,16 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Sharity Docs
+servers:
+  - url: http://localhost:5000
+paths:
+  /user:
+    $ref: "./userapi.yml#user"
+  '/user/{userId}':
+    $ref: "./userapi.yml#user~1{userId}"
+
+components:
+  $ref: "./schemas.yml"
+
+    
