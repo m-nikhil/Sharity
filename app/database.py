@@ -1,17 +1,29 @@
+from pymongo import MongoClient
 from flask import g
 
-def init_db(client):
-    g.db = client
+class Database(object):
+        __instance = None
 
+        def __init__(self, app):
 
-def teardown_db():
-    db = g.pop('db', None)
+                if Database.__instance != None:
+                        raise Exception("This class is a singleton!")
+                else:
+                        Database.__instance = self
+                
+                self.app = app
 
-    if db is not None:
-        db.close()
+        def connect(self):
+                #use only once in the main thread
+                conn = MongoClient(self.app.config['DATABASE_HOST'], maxPoolSize=None, waitQueueTimeoutMS=1000)
+                self.conn = conn[self.app.config['DATABASE']]
+                return conn
 
-def get_db():
-    if 'db' not in g:
-        g.db = init_db()
+        @staticmethod 
+        def getInstance():
+                if Database.__instance == None:
+                        Database()
+                return Database.__instance
 
-    return g.db
+        def getConnection(self):
+                return self.conn

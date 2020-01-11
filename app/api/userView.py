@@ -1,32 +1,25 @@
 import datetime
 
 from connexion import NoContent
-from flask import request
-from flask.views import MethodView
-from app.database import *
+from flask import request, g
+from app.MethodView import MethodView
+from pymongo import errors
 
 class UserView(MethodView):
     """ Create User service
     """
     method_decorators = []
-    user = {}
-
-    def db():
-        with app.app_context():
-          get_db()
+    _decorators = []
 
     def post(self):
-      body= request.json
-      name = body.get("name")
-      tag = body.get("tag")
-      count = len(self.pets)
-      pet = {}
-      pet['id'] = count + 1
-      pet["tag"] = tag
-      pet["name"] = name
-      pet['last_updated'] = datetime.datetime.now()
-      self.pets[pet['id']] = pet
-      return pet, 201
+      body = request.json
+      body['_id'] = body['email']
+      db = self.getConnection()
+      try:
+        db.user.insert_one(body)
+      except errors.DuplicateKeyError:
+        return {"status": 400, "detail": "user already exists"}, 400
+      return body, 200
 
     def put(self, petId):
       body = request.json

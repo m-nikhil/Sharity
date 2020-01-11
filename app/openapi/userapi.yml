@@ -17,7 +17,7 @@ user:
           content:
             application/json:
               schema:
-                $ref: "./schemas.yml#/schemas/Pets"
+                $ref: "./schemas.yml#/schemas/User"
         default:
           description: unexpected error
           content:
@@ -25,22 +25,22 @@ user:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
     post:
-      summary: Create a pet
+      summary: Create a user
       tags:
-        - pets
+        - users
       requestBody:
         description: Pet to add to the system
         content:
           application/json:
             schema:
-              $ref: "./schemas.yml#/schemas/Pet"
+              $ref: "./schemas.yml#/schemas/User"
       responses:
-        '201':
+        '200':
           description: Pet record interpreted by backend
           content:
             application/json:
               schema:
-                $ref: "./schemas.yml#/schemas/Pet"
+                $ref: "./schemas.yml#/schemas/User"
         default:
           description: unexpected error
           content:

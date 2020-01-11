@@ -9,6 +9,7 @@ verify_ssl = true
 flask = "*"
 connexion = {extras = ["swagger-ui"],version = "*"}
 pymongo = "*"
+prance = "*"
 
 [requires]
 python_version = "3.6"

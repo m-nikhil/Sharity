@@ -1,4 +1,5 @@
 schemas:
+
   User:
     type: "object"
     required:
@@ -46,6 +47,7 @@ schemas:
       addedBy:
         type: "object"
         description: "Date when user is converted to admin"
+        readOnly: true
         properties:
           firstName:
             type: "string"
@@ -307,11 +309,15 @@ schemas:
 
   Error:
     required:
-      - code
-      - message
+      - status
+      - detail
     properties:
-      code:
+      status:
         type: integer
         format: int32
-      message:
+      detail:
+        type: string
+      title:
+        type: string
+      type:
         type: string

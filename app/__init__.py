@@ -1,13 +1,15 @@
 
-import os
+import os, sys
 import connexion
 from connexion.resolver import MethodViewResolver
 import app.api
-from pymongo import MongoClient
-from app.database import *
+from app.database import Database
 import prance
 from typing import Any, Dict
 from pathlib import Path
+from .ResponseValidator import ResponseValidator
+
+
 
 def get_bundled_specs(main_file: Path) -> Dict[str, Any]:
     parser = prance.ResolvingParser(str(main_file.absolute()),
@@ -23,7 +25,8 @@ def create_app(test_config=None):
 
     app.config.from_mapping(
         SECRET_KEY='dev_secret_3fkj$s',
-        DATABASE="mongodb://localhost:27017/",
+        DATABASE_HOST="mongodb://localhost:27017/",
+        DATABASE="sharity"
     )
 
     if test_config is None:
@@ -33,21 +36,19 @@ def create_app(test_config=None):
         # load the test config if passed in
         app.config.from_pyfile(test_config)
 
+    #database
+    instance = Database(app)
+    db = instance.connect()
+    res = db.admin.command('ping') # ping database; to check if it's up and running
+    if(not res['ok']):
+        sys.exit("Error: Couldn't reach the database.")
+
     #swagger
     options = {"swagger_ui": True}
     connexionApp.add_api(get_bundled_specs(Path("app/openapi/sharity-api.yml")),
                 options=options,
                 arguments={'title': 'Sharity Docs'},
-                resolver=MethodViewResolver('app.api'), strict_validation=True, validate_responses=True)
-
-    #database
-    client = MongoClient(app.config['DATABASE'])
-    with app.app_context():
-        init_db(client)
-
-    @app.teardown_appcontext
-    def shutdown_session(exception):
-        teardown_db()
+                resolver=MethodViewResolver('app.api'), strict_validation=True, validate_responses=True, validator_map={"response": ResponseValidator},)
 
     # Ping route
     @app.route('/ping')
