@@ -2,14 +2,19 @@
 import os, sys
 import connexion
 from connexion.resolver import MethodViewResolver
+from connexion.apps.flask_app import FlaskJSONEncoder
 import app.api
 from app.database import Database
 import prance
 from typing import Any, Dict
 from pathlib import Path
-from .ResponseValidator import ResponseValidator
+from bson import ObjectId
 
-
+class CustomJSONEncoder(FlaskJSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, ObjectId):
+                return str(obj)
+            return FlaskJSONEncoder.default(self, obj)
 
 def get_bundled_specs(main_file: Path) -> Dict[str, Any]:
     parser = prance.ResolvingParser(str(main_file.absolute()),
@@ -22,6 +27,9 @@ def create_app(test_config=None):
     # create and configure the app
     connexionApp = connexion.FlaskApp(__name__, specification_dir='openapi/', debug=True)
     app = connexionApp.app
+
+    app.json_encoder = CustomJSONEncoder  # custom json decoder
+                                          # added to decode mongoDB id
 
     app.config.from_mapping(
         SECRET_KEY='dev_secret_3fkj$s',
@@ -48,7 +56,7 @@ def create_app(test_config=None):
     connexionApp.add_api(get_bundled_specs(Path("app/openapi/sharity-api.yml")),
                 options=options,
                 arguments={'title': 'Sharity Docs'},
-                resolver=MethodViewResolver('app.api'), strict_validation=True, validate_responses=True, validator_map={"response": ResponseValidator},)
+                resolver=MethodViewResolver('app.api'), strict_validation=True, validate_responses=True )
 
     # Ping route
     @app.route('/ping')

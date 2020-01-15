@@ -1,26 +1,79 @@
 schemas:
-
+  
   User:
+      type: "object"
+      required:
+        - "password"
+        - "email"
+        - "firstName"
+        - "lastName"
+        - "dateOfBirth"
+        - "phone"
+      properties:
+        id:
+          type: "string"
+          readOnly: true
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        email:
+          type: "string"
+          format: "email"
+        dateOfBirth:
+          type: "string"
+          format: "date"
+        lastlogin:
+          type: "string"
+          format: "date-time"
+          readOnly: true
+        addedBy:
+          type: "object"
+          description: "Date when user is converted to admin"
+          readOnly: true
+          properties:
+            firstName:
+              type: "string"
+            lastName:
+              type: "string"
+            email:
+              type: "string"
+        active:
+          type: "boolean"
+          description: "User Status"
+          readOnly: true
+        isAdmin:
+          type: "boolean"
+          readOnly: true
+        transations:
+          type: "array"
+          readOnly: true
+          items:
+            type: "object"
+            properties:
+              to:
+                type: "string"
+                format: "email"
+              amount:
+                type: "integer"
+              success:
+                type: "boolean"
+              datetime:
+                type: "string"
+                format: "date-time"
+        password:
+          type: "string"
+          format: "password"
+          writeOnly: true
+        phone:
+          type: "string"
+          pattern: '^\d{10}$'
+        panNumber:
+          type: "string"
+
+  UserEditable:
     type: "object"
-    required:
-    - "email"
-    - "password"
-    - "firstName"
-    - "lastName"
-    - "dateOfBirth"
-    - "phone"
     properties:
-      id:
-        type: "integer"
-        format: "int64"
-        readOnly: true
-      firstName:
-        type: "string"
-      lastName:
-        type: "string"
-      email:
-        type: "string"
-        format: "email"
       password:
         type: "string"
         format: "password"
@@ -30,48 +83,7 @@ schemas:
         pattern: '^\d{10}$'
       panNumber:
         type: "string"
-      dateOfBirth:
-        type: "string"
-        format: "date"
-      active:
-        type: "boolean"
-        description: "User Status"
-        readOnly: true
-      lastlogin:
-        type: "string"
-        format: "date-time"
-        readOnly: true
-      isAdmin:
-        type: "boolean"
-        readOnly: true
-      addedBy:
-        type: "object"
-        description: "Date when user is converted to admin"
-        readOnly: true
-        properties:
-          firstName:
-            type: "string"
-          lastName:
-            type: "string"
-          email:
-            type: "string"
-      transations:
-        type: "array"
-        readOnly: true
-        items:
-          type: "object"
-          properties:
-            to:
-              type: "string"
-              format: "email"
-            amount:
-              type: "integer"
-            success:
-              type: "boolean"
-            datetime:
-              type: "string"
-              format: "date-time"
-        
+
 
   Admin:
     type: "object"
@@ -99,7 +111,6 @@ schemas:
       active:
         type: "boolean"
         readOnly: true
-
       lastlogin:
         type: "string"
         format: "date-time"
@@ -282,31 +293,6 @@ schemas:
           type: "string"
           format: "date-time"
 
-  Pet:
-    required:
-      - name
-    properties:
-      name:
-        type: string
-        example: fluffy
-      tag:
-        type: string
-        example: red
-      id:
-        type: integer
-        format: int64
-        readOnly: true
-        example: 1
-      last_updated:
-        type: string
-        readOnly: true
-        example: 2019-01-16T23:52:54.309102Z
-
-  Pets:
-    type: array
-    items:
-      $ref: "#schemas/Pet"
-
   Error:
     required:
       - status
@@ -320,4 +306,13 @@ schemas:
       title:
         type: string
       type:
+        type: string
+
+  Delete:
+    required:
+      - id
+    properties:
+      id:
+        type: string
+      detail:
         type: string

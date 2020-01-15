@@ -1,23 +1,17 @@
 user:
     get:
-      summary: List all pets
+      summary: List all users
       tags:
-        - pets
-      parameters:
-        - name: limit
-          in: query
-          description: How many items to return at one time (max 100)
-          required: false
-          schema:
-            type: integer
-            format: int32
+        - users
       responses:
         '200':
-          description: An paged array of pets
+          description: An paged array of users
           content:
             application/json:
               schema:
-                $ref: "./schemas.yml#/schemas/User"
+                type: "array"
+                items:
+                    $ref: "./schemas.yml#/schemas/User"
         default:
           description: unexpected error
           content:
@@ -29,14 +23,14 @@ user:
       tags:
         - users
       requestBody:
-        description: Pet to add to the system
+        description: USer to add to the system
         content:
           application/json:
             schema:
               $ref: "./schemas.yml#/schemas/User"
       responses:
         '200':
-          description: Pet record interpreted by backend
+          description: User record interpreted by backend
           content:
             application/json:
               schema:
@@ -48,26 +42,25 @@ user:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
 
-
 user/{userId}:
     get:
-      summary: Info for a specific pet
+      summary: Info for a specific user
       tags:
-        - pets
+        - users
       parameters:
         - name: userId
           in: path
           required: true
-          description: The id of the pet to retrieve
+          description: The id of the user to retrieve
           schema:
-            type: integer
+            type: string
       responses:
         '200':
           description: Expected response to a valid request
           content:
             application/json:
               schema:
-                $ref: "./schemas.yml#/schemas/Pet"
+                $ref: "./schemas.yml#/schemas/User"
         default:
           description: unexpected error
           content:
@@ -76,49 +69,54 @@ user/{userId}:
                 $ref: "./schemas.yml#/schemas/Error"
 
     put:
-      summary: Update a pet
+      summary: Update a user
       tags:
-        - pets
+        - users
       parameters:
         - name: userId
           in: path
           required: true
-          description: The id of the pet to update
+          description: The id of the user to update
           schema:
-            type: integer
+            type: string
       requestBody:
-        description: Pet data to update
+        description: user data to update
         content:
           application/json:
             schema:
-              $ref: "./schemas.yml#/schemas/Pet"
+              $ref: "./schemas.yml#/schemas/UserEditable"
       responses:
-        '201':
-          description: Pet record interpreted by backend
+        '200':
+          description: User record interpreted by backend
           content:
             application/json:
               schema:
-                $ref: "./schemas.yml#/schemas/Pet"
+                $ref: "./schemas.yml#/schemas/User"
         default:
           description: unexpected error
           content:
             application/json:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
+
     delete:
-      summary: Update a pet
+      summary: Delete a user
       tags:
-        - pets
+        - users
       parameters:
         - name: userId
           in: path
           required: true
-          description: The id of the pet to update
+          description: The id of the user to delete
           schema:
-            type: integer
+            type: string
       responses:
-        '204':
+        '200':
           description: Null response
+          content:
+            application/json:
+              schema:
+                  $ref: "./schemas.yml#/schemas/Delete"
         default:
           description: unexpected error
           content:

@@ -7,3 +7,7 @@
 -  go to applicationDir
 - pipenv shell
 - flask run
+
+
+### Database
+- index email of user collection

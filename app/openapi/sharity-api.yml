@@ -9,7 +9,6 @@ paths:
     $ref: "./userapi.yml#user"
   '/user/{userId}':
     $ref: "./userapi.yml#user~1{userId}"
-
 components:
   $ref: "./schemas.yml"
 
