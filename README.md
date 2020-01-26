@@ -8,6 +8,9 @@
 - pipenv shell
 - flask run
 
+### Swagger
+- hit endpoint /ui
+
 
 ### Database
 - index email of user collection
