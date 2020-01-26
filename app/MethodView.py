@@ -86,7 +86,6 @@ class SuperView(MethodView):
         if not obj_id:
             return {"status": 400, "detail": "Invalid " + self.resource + " id"}, 400
         result = self.db[self.resource].delete_one({"_id": obj_id})
-        print(result.raw_result)
         if not result.deleted_count:
             return {"status": 400, "detail": self.resource + " not found"}, 400
         return {"id": obj_id, "detail": self.resource + " successfully removed"}, 200
