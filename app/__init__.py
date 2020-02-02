@@ -47,7 +47,10 @@ def create_app(test_config=None):
     #database
     instance = Database(app)
     db = instance.connect()
-    res = db.admin.command('ping') # ping database; to check if it's up and running
+    try:
+        res = db.admin.command('ping') # ping database; to check if it's up and running
+    except:
+        sys.exit("Error: Couldn't reach the database.")
     if(not res['ok']):
         sys.exit("Error: Couldn't reach the database.")
 
