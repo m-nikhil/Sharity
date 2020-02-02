@@ -21,3 +21,6 @@ htmlcov/
 .coverage
 .coverage.*
 *,cover
+
+# VScode
+.vscode
