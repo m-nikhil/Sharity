@@ -1,7 +1,7 @@
 
 import os, sys
 import connexion
-from connexion.resolver import MethodViewResolver
+from app.CustomViewResolver import CustomViewResolver
 from connexion.apps.flask_app import FlaskJSONEncoder
 import app.api
 from app.database import Database
@@ -9,6 +9,7 @@ import prance
 from typing import Any, Dict
 from pathlib import Path
 from bson import ObjectId
+from swagger_ui_bundle import swagger_ui_3_path
 
 class CustomJSONEncoder(FlaskJSONEncoder):
         def default(self, obj):
@@ -55,11 +56,11 @@ def create_app(test_config=None):
         sys.exit("Error: Couldn't reach the database.")
 
     #swagger
-    options = {"swagger_ui": True}
+    options = {'swagger_path': swagger_ui_3_path}
     connexionApp.add_api(get_bundled_specs(Path("app/openapi/sharity-api.yml")),
                 options=options,
                 arguments={'title': 'Sharity Docs'},
-                resolver=MethodViewResolver('app.api'), strict_validation=True, validate_responses=True )
+                resolver=CustomViewResolver('app.api'), validate_responses=True )
 
     # Ping route
     @app.route('/ping')
