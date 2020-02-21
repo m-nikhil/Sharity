@@ -9,7 +9,26 @@ paths:
     $ref: "./userapi.yml#user"
   '/user/{userId}':
     $ref: "./userapi.yml#user~1{userId}"
+  /ngo:
+    $ref: "./ngoapi.yml#ngo"
+  '/ngo/{ngoId}':
+    $ref: "./ngoapi.yml#ngo~1{ngoId}"
+  '/ngo/{ngoId}/bankdetails':
+    $ref: "./ngoapi.yml#ngo~1{ngoId}~1bankdetails"
+  '/ngo/{ngoId}/documents':
+    $ref: "./ngoapi.yml#ngo~1{ngoId}~1documents"
+  '/ngo/{ngoId}/requirements':
+    $ref: "./ngoapi.yml#ngo~1{ngoId}~1requirements"
+  '/ngo/{ngoId}/requirements/{requirementId}':
+    $ref: "./ngoapi.yml#ngo~1{ngoId}~1requirements~1{requirementId}"
 components:
   $ref: "./schemas.yml"
 
+
+# Subresource considerations for a nested propery object of an entity:
+# 1. If the propery needs different authorization access than the rest of the entity.
+# 2. If the nested propery is a type of array.
+
+# For each object type,
+# 'additionalProperties: false' must be added
     

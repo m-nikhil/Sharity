@@ -1,6 +1,7 @@
 user:
     get:
       summary: List all users
+      operationId: app.api.UserView.getAll
       tags:
         - users
       responses:
@@ -20,10 +21,11 @@ user:
                 $ref: "./schemas.yml#/schemas/Error"
     post:
       summary: Create a user
+      operationId: app.api.UserView.post
       tags:
         - users
       requestBody:
-        description: USer to add to the system
+        description: User to add to the system
         content:
           application/json:
             schema:
@@ -45,6 +47,7 @@ user:
 user/{userId}:
     get:
       summary: Info for a specific user
+      operationId: app.api.UserView.get
       tags:
         - users
       parameters:
@@ -70,6 +73,7 @@ user/{userId}:
 
     put:
       summary: Update a user
+      operationId: app.api.UserView.put
       tags:
         - users
       parameters:
@@ -101,6 +105,7 @@ user/{userId}:
 
     delete:
       summary: Delete a user
+      operationId: app.api.UserView.delete
       tags:
         - users
       parameters:

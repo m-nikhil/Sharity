@@ -1,17 +1,16 @@
-import datetime
-
-from connexion import NoContent
-from flask import request, g
+from flask import request
 from app.MethodView import SuperView
+import json
 
-class UserView(SuperView):
+
+class UserView(SuperView): 
     """ Create User service
     """
     method_decorators = []
     _decorators = []
 
     resource = 'user'
-    projection = {'active': False, 'isAdmin': False, 'transations': False, 'password': False}
+    mask = {'active': False, 'isAdmin': False, 'transations': False, 'password': False}
 
     def post(self):
       body = request.json
@@ -27,5 +26,5 @@ class UserView(SuperView):
     def get(self, userId):
       return self.retrieve(userId)
 
-    def search(self):
+    def getAll(self):
       return self.retrieveAll()

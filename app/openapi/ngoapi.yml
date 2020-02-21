@@ -1,0 +1,466 @@
+ngo:
+    get:
+      summary: List all ngos
+      operationId: app.api.NgoView.getAll
+      tags:
+        - ngos
+      parameters:
+        - name: city
+          in: query
+          required: false
+          description: to filter ngo by city
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: false
+          description: to filter ngo by name
+          schema:
+            type: string   
+      responses:
+        '200':
+          description: An paged array of ngos
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                    $ref: "./schemas.yml#/schemas/Ngo"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+    post:
+      summary: Create a ngo
+      operationId: app.api.NgoView.post
+      tags:
+        - ngos
+      requestBody:
+        description: add ngo to the system
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas.yml#/schemas/Ngo"
+      responses:
+        '200':
+          description: User record interpreted by backend
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Ngo"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+ngo/{ngoId}:
+    get:
+      summary: Info for a specific ngo
+      operationId: app.api.NgoView.get
+      tags:
+        - ngos
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          description: The id of the ngo to retrieve
+          schema:
+            type: string
+      responses:
+        '401':
+          description: Authorization information is missing or invalid.
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Ngo"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+    put:
+      summary: Update a ngo
+      operationId: app.api.NgoView.put
+      tags:
+        - ngos
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          description: The id of the ngo to update
+          schema:
+            type: string
+      requestBody:
+        description: ngo data to update
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas.yml#/schemas/NgoEditable"
+      responses:
+        '200':
+          description: User record interpreted by backend
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Ngo"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+    delete:
+      summary: Delete a ngo
+      operationId: app.api.NgoView.delete
+      tags:
+        - ngos
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          description: The id of the ngo to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Null response
+          content:
+            application/json:
+              schema:
+                  $ref: "./schemas.yml#/schemas/Delete"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+# ==================
+# Bank Details
+
+ngo/{ngoId}/bankdetails:
+
+    get:
+      summary: Info for a specific ngo's bank details
+      operationId: app.api.NgoBankDetailsView.get
+      tags:
+        - ngos
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          description: The id of the ngo to retrieve bank details
+          schema:
+            type: string
+      responses:
+        '401':
+          description: Authorization information is missing or invalid.
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/BankDetails"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+    put:
+      summary: Update ngo bank details
+      operationId: app.api.NgoBankDetailsView.put
+      tags:
+        - ngos
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          description: The id of the ngo to update bank details
+          schema:
+            type: string
+      requestBody:
+        description: ngo bank details data to update
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas.yml#/schemas/BankDetails"
+      responses:
+        '200':
+          description: User document record interpreted by backend
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/BankDetails"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+    delete:
+      summary: Delete ngo bankdetails
+      operationId: app.api.NgoBankDetailsView.delete
+      tags:
+        - ngos
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          description: The id of the ngo to delete bankdetails
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Null response
+          content:
+            application/json:
+              schema:
+                  $ref: "./schemas.yml#/schemas/Delete"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+# ==================
+# Documents
+
+ngo/{ngoId}/documents:
+    get:
+      summary: Info for a specific ngo's documents
+      operationId: app.api.NgoDocumentsView.get
+      tags:
+        - ngos
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          description: The id of the ngo to retrieve documents
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected document response
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/DocumentFileResponse"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+    put:
+      summary: Update ngo documents
+      operationId: app.api.NgoDocumentsView.put
+      tags:
+        - ngos
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          description: The id of the ngo to update document
+          schema:
+            type: string
+      requestBody:
+        description: ngo document data to update
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "./schemas.yml#/schemas/DocumentFileRequest"
+      responses:
+        '200':
+          description: User document record interpreted by backend
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/DocumentFileResponse"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+# ==================
+# Requirements
+
+ngo/{ngoId}/requirements/{requirementId}:
+
+    get:
+      summary: Info of specific requirement
+      operationId: app.api.NgoRequirementsView.get
+      tags:
+        - ngos
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          description: The id of the ngo to get requirement
+          schema:
+            type: string
+        - name: requirementId
+          in: path
+          required: true
+          description: The id of the requirement
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected requirement response
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/requirement"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+    put:
+      summary: Update ngo documents
+      operationId: app.api.NgoRequirementsView.put
+      tags:
+        - ngos
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          description: The id of the ngo to update requirement
+          schema:
+            type: string
+        - name: requirementId
+          in: path
+          required: true
+          description: The id of the requirement
+          schema:
+            type: string
+      requestBody:
+        description: ngo requirement data to update
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas.yml#/schemas/requirement"
+      responses:
+        '200':
+          description: User document record interpreted by backend
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/requirement"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+    delete:
+      summary: Delete a ngo requirement
+      operationId: app.api.NgoRequirementsView.delete
+      tags:
+        - ngos
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          description: The id of the ngo to delete requirement
+          schema:
+            type: string
+        - name: requirementId
+          in: path
+          required: true
+          description: The id of the requirement
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Null response
+          content:
+            application/json:
+              schema:
+                  $ref: "./schemas.yml#/schemas/Delete"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+ngo/{ngoId}/requirements:
+
+    get:
+      summary: List all requirements
+      operationId: app.api.NgoRequirementsView.getAll
+      tags:
+        - ngos 
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          description: The id of the ngo to delete requirement
+          schema:
+            type: string
+      responses:
+        '200':
+          description: An paged array of requirements
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                    $ref: "./schemas.yml#/schemas/requirement"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+    post:
+      summary: Create a requirement
+      operationId: app.api.NgoRequirementsView.post
+      tags:
+        - ngos
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          description: The id of the ngo to delete requirement
+          schema:
+            type: string
+      requestBody:
+        description: add ngo to the system
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas.yml#/schemas/requirement"
+      responses:
+        '200':
+          description: User record interpreted by backend
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/requirement"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
