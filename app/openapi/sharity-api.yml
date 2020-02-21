@@ -5,10 +5,12 @@ info:
 servers:
   - url: http://localhost:5000
 paths:
+
   /user:
     $ref: "./userapi.yml#user"
   '/user/{userId}':
     $ref: "./userapi.yml#user~1{userId}"
+
   /ngo:
     $ref: "./ngoapi.yml#ngo"
   '/ngo/{ngoId}':
@@ -21,6 +23,17 @@ paths:
     $ref: "./ngoapi.yml#ngo~1{ngoId}~1requirements"
   '/ngo/{ngoId}/requirements/{requirementId}':
     $ref: "./ngoapi.yml#ngo~1{ngoId}~1requirements~1{requirementId}"
+
+  /city:
+    $ref: "./cityapi.yml#city"
+  '/city/{cityId}':
+    $ref: "./cityapi.yml#city~1{cityId}"
+
+  /ngotype:
+    $ref: "./ngotypeapi.yml#ngoType"
+  '/ngotype/{ngoTypeId}':
+    $ref: "./ngotypeapi.yml#ngoType~1{ngoTypeId}"
+    
 components:
   $ref: "./schemas.yml"
 

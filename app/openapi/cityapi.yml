@@ -1,0 +1,130 @@
+city:
+    get:
+      summary: List all cities
+      operationId: app.api.CityView.getAll
+      tags:
+        - city
+      responses:
+        '200':
+          description: An paged array of cities
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                    $ref: "./schemas.yml#/schemas/City"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+    post:
+      summary: Create a city
+      operationId: app.api.CityView.post
+      tags:
+        - city
+      requestBody:
+        description: City to add to the system
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas.yml#/schemas/City"
+      responses:
+        '200':
+          description: City record interpreted by backend
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/City"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+city/{cityId}:
+    get:
+      summary: Info for a specific city
+      operationId: app.api.CityView.get
+      tags:
+        - city
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          description: The id of the city to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/City"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+    put:
+      summary: Update a city
+      operationId: app.api.CityView.put
+      tags:
+        - city
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          description: The id of the city to update
+          schema:
+            type: string
+      requestBody:
+        description: city data to update
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas.yml#/schemas/City"
+      responses:
+        '200':
+          description: City record interpreted by backend
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/City"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+    delete:
+      summary: Delete a city
+      operationId: app.api.CityView.delete
+      tags:
+        - city
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          description: The id of the city to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Null response
+          content:
+            application/json:
+              schema:
+                  $ref: "./schemas.yml#/schemas/Delete"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"

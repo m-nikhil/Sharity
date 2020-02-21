@@ -1,0 +1,130 @@
+ngoType:
+    get:
+      summary: List all ngo types
+      operationId: app.api.NgoTypeView.getAll
+      tags:
+        - ngotype
+      responses:
+        '200':
+          description: An paged array of ngo types
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                    $ref: "./schemas.yml#/schemas/NgoType"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+    post:
+      summary: Create a ngo type
+      operationId: app.api.NgoTypeView.post
+      tags:
+        - ngotype
+      requestBody:
+        description: Ngo type to add to the system
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas.yml#/schemas/NgoType"
+      responses:
+        '200':
+          description: Ngo type record interpreted by backend
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/NgoType"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+ngoType/{ngoTypeId}:
+    get:
+      summary: Info for a specific ngo type
+      operationId: app.api.NgoTypeView.get
+      tags:
+        - ngotype
+      parameters:
+        - name: ngoTypeId
+          in: path
+          required: true
+          description: The id of the ngo type to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/NgoType"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+    put:
+      summary: Update a ngo type
+      operationId: app.api.NgoTypeView.put
+      tags:
+        - ngotype
+      parameters:
+        - name: ngoTypeId
+          in: path
+          required: true
+          description: The id of the ngo type to update
+          schema:
+            type: string
+      requestBody:
+        description: ngo type data to update
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas.yml#/schemas/NgoType"
+      responses:
+        '200':
+          description: Ngo Type record interpreted by backend
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/NgoType"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+    delete:
+      summary: Delete a ngo type
+      operationId: app.api.NgoTypeView.delete
+      tags:
+        - ngotype
+      parameters:
+        - name: ngoTypeId
+          in: path
+          required: true
+          description: The id of the ngo type to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Null response
+          content:
+            application/json:
+              schema:
+                  $ref: "./schemas.yml#/schemas/Delete"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"

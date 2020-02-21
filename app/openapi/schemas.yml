@@ -201,12 +201,26 @@ schemas:
         readOnly: true
             
   NgoType:
+    type: "object"
+    additionalProperties: false
     description: "Type of Ngo"
-    type: "string"
-    
-  Tag:
-    description: "Add tags to ngo to facilitate search"
-    type: "string"
+    properties:
+      _id:
+        type: "string"
+        readOnly: true
+      ngotype:
+        type: "string"
+
+  City:
+    type: "object"
+    additionalProperties: false
+    description: "city name"
+    properties:
+      _id:
+        type: "string"
+        readOnly: true
+      city:
+        type: "string"
 
   Ngo:
     type: "object"
@@ -238,10 +252,6 @@ schemas:
         type: "string"
       ngotype:
         $ref: "#schemas/NgoType"
-      tags:
-        type: "array"
-        items:
-          $ref: "#schemas/Tag"
       numberOfPeopleStaying:
         type: "integer"
         minimum: 1
@@ -257,6 +267,7 @@ schemas:
         minimum: 0
       donatedList:
         type: "array"
+        readOnly: true
         items:
           type: "object"
           additionalProperties: false
@@ -300,10 +311,6 @@ schemas:
           type: "string"
         ngotype:
           $ref: "#schemas/NgoType"
-        tags:
-          type: "array"
-          items:
-            $ref: "#schemas/Tag"
         numberOfPeopleStaying:
           type: "integer"
           minimum: 1
