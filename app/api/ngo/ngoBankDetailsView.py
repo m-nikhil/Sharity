@@ -2,7 +2,7 @@ from flask import request
 from app.MethodView import SuperView
 
 class NgoBankDetailsView(SuperView):
-    """ Create NGO service
+    """ Create NGO Bank Details service
     """
     method_decorators = []
     _decorators = []

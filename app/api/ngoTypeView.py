@@ -4,7 +4,7 @@ import json
 
 
 class NgoTypeView(SuperView): 
-    """ Create User service
+    """ Create Ngo Type service
     """
     method_decorators = []
     _decorators = []

@@ -4,7 +4,7 @@ import json
 
 
 class CityView(SuperView): 
-    """ Create User service
+    """ Create City service
     """
     method_decorators = []
     _decorators = []
