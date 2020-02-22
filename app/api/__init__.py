@@ -5,3 +5,4 @@ from .ngo.ngoDocumentsView import NgoDocumentsView
 from .ngo.ngoRequirementsView import NgoRequirementsView
 from .cityView import CityView
 from .ngoTypeView import NgoTypeView
+from .transactionView import TransactionView

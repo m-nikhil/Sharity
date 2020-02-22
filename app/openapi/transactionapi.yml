@@ -1,0 +1,98 @@
+transaction:
+    get:
+      summary: List all transactions
+      operationId: app.api.TransactionView.getAll
+      tags:
+        - transaction
+      responses:
+        '200':
+          description: An paged array of transactions
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                    $ref: "./schemas.yml#/schemas/Transaction"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+    post:
+      summary: Create a transaction
+      operationId: app.api.TransactionView.post
+      tags:
+        - transaction
+      requestBody:
+        description: Transaction to add to the system
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas.yml#/schemas/Transaction"
+      responses:
+        '200':
+          description: Transaction record interpreted by backend
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Transaction"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+transaction/{transactionId}:
+    get:
+      summary: Info for a specific transaction
+      operationId: app.api.TransactionView.get
+      tags:
+        - transaction
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          description: The id of the transaction to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Transaction"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+    delete:
+      summary: Delete a transaction
+      operationId: app.api.TransactionView.delete
+      tags:
+        - transaction
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          description: The id of the transaction to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Null response
+          content:
+            application/json:
+              schema:
+                  $ref: "./schemas.yml#/schemas/Delete"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"

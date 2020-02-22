@@ -33,6 +33,11 @@ paths:
     $ref: "./ngotypeapi.yml#ngoType"
   '/ngotype/{ngoTypeId}':
     $ref: "./ngotypeapi.yml#ngoType~1{ngoTypeId}"
+
+  /transaction:
+    $ref: "./transactionapi.yml#transaction"
+  '/transaction/{transactionId}':
+    $ref: "./transactionapi.yml#transaction~1{transactionId}"
     
 components:
   $ref: "./schemas.yml"
