@@ -10,6 +10,8 @@ paths:
     $ref: "./userapi.yml#user"
   '/user/{userId}':
     $ref: "./userapi.yml#user~1{userId}"
+  '/user/{userId}/transaction':
+    $ref: "./userapi.yml#user~1{userId}~1transaction"
 
   /ngo:
     $ref: "./ngoapi.yml#ngo"
@@ -23,6 +25,8 @@ paths:
     $ref: "./ngoapi.yml#ngo~1{ngoId}~1requirements"
   '/ngo/{ngoId}/requirements/{requirementId}':
     $ref: "./ngoapi.yml#ngo~1{ngoId}~1requirements~1{requirementId}"
+  '/ngo/{ngoId}/transaction':
+    $ref: "./ngoapi.yml#ngo~1{ngoId}~1transaction"
 
   /city:
     $ref: "./cityapi.yml#city"

@@ -128,3 +128,32 @@ user/{userId}:
             application/json:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
+
+user/{userId}/transaction:
+    get:
+      summary: List all transaction
+      operationId: app.api.UserTransactionView.getAll
+      tags:
+        - users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The id of the user to update
+          schema:
+            type: string
+      responses:
+        '200':
+          description: An paged array of transaction
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                    $ref: "./schemas.yml#/schemas/Transaction"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"

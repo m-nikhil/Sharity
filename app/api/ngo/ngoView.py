@@ -9,7 +9,7 @@ class NgoView(SuperView):
     _decorators = []
 
     resource = 'ngo'
-    mask = {'password': False, 'bankdetails' : False, 'requirements': False, 'documents': False}
+    mask = {'password': False, 'bankdetails' : False, 'requirements': False, 'documents': False, 'transaction': False}
 
     def post(self):
       body = request.json 
