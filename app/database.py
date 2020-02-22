@@ -16,6 +16,7 @@ class Database(object):
         def connect(self):
                 #use only once in the main thread
                 conn = MongoClient(self.app.config['DATABASE_HOST'], maxPoolSize=None, waitQueueTimeoutMS=1000)
+                self.rawclient = conn
                 self.conn = conn[self.app.config['DATABASE']]
                 return conn
 
@@ -27,3 +28,6 @@ class Database(object):
 
         def getConnection(self):
                 return self.conn
+
+        def getTansaction(self):
+                return self.rawclient.start_session()
