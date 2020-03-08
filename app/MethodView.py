@@ -10,6 +10,7 @@ from flask import views
 from app.database import Database
 from pymongo import errors
 from bson import ObjectId
+from app.ConnectionBusinessException import BussinessException
 import json
 
 # views.MethodViewType.__init__ = MethodViewType.__init__
@@ -31,6 +32,8 @@ class SuperView(views.MethodView):
     # application. Fix using mongo aggregations
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
+        # if subresource exist
+        # print(cls.mask)
         if((not type(cls.subresource) is property) and (not type(cls.subresource) is type(None))):
             subresource_mask = {'_id' : False}
             if not cls.mask:
@@ -39,6 +42,11 @@ class SuperView(views.MethodView):
                 for field in cls.mask:
                     subresource_mask[cls.subresource+'.'+field] = False
             cls.mask = subresource_mask
+        elif ((not type(cls.mask) is property) and (not type(cls.mask) is type(None))):
+            mask = {}
+            for field in cls.mask:
+                    mask[field] = False
+            cls.mask = mask
             
         
     _decorators = {}
@@ -63,7 +71,7 @@ class SuperView(views.MethodView):
     # Projection must have only 'Flase' values
     @property
     def mask(self):
-        raise NotImplementedError
+        return None
 
     def __init__(self):
             super().__init__()
@@ -94,10 +102,24 @@ class SuperView(views.MethodView):
     def getConnection(self):
         return self.db
 
+    def projection_helper(self,projectionList,subresource=None):
+        projection = {}
+        for field in projectionList:
+            if subresource:
+                projection[subresource+field] = True
+            else: 
+                projection[field] = True
+        return projection
+
 
     # Database operation helper functions
     # TO-DO softdelete, active records
     # TO-Do check if _id is altered
+    # TO-DO projection all fields
+    # TO-DO projection nothing
+    # TO-DO param to avoid the second DB call. No return
+    # TO-DO foreign key
+    # make a generic builder pattern with customise query
     
     # STANDARDS followed:
     # All the resources and sub resources are operated as a whole, exepect update.
@@ -109,223 +131,217 @@ class SuperView(views.MethodView):
     # -------------  resource APIs ------------------------
     #-------------------------------------------------------
 
-    def insert(self, data, resource = None):
-        if not resource:
-            resource = self.resource
+    # objectId can be passed from the application
+    def insert(self, data, resource = None, projection = None, objectId = None):
+        resource = resource if resource else self.resource
+        mask = self.projection_helper(projection) if projection else self.mask
+        if objectId:
+            data["_id"] = objectId
         try:
             obj_id = self.db[resource].insert_one(data).inserted_id
         except errors.DuplicateKeyError:
-            return {"status": 400, "detail": resource + " already exists"}, 400
-        return self.db[resource].find_one({"_id": obj_id}, self.mask), 200
+            raise BussinessException("error",400,resource + " already exists")
+        return self.db[resource].find_one({"_id": obj_id}, mask), 200
 
     # if the element doesn't exist throw error. Now it inserts new field
-    def update(self, obj_id, data, resource = None):
-        if not resource:
-            resource = self.resource
+    def update(self, obj_id, data, resource = None, projection = None):
+        resource = resource if resource else self.resource
+        mask = self.projection_helper(projection) if projection else self.mask
         obj_id = convertToObjectId(obj_id)
         if not obj_id:
-            return {"status": 400, "detail": "Invalid " + resource + " id"}, 400
+            raise BussinessException("error",400,"Invalid " + resource + " id")
         result = self.db[resource].update_one({"_id": obj_id}, {'$set': data})
         if not result.matched_count:
-            return {"status": 400, "detail": resource + " not found"}, 400
-        return self.db[resource].find_one({"_id": obj_id}, self.mask), 200
+            raise BussinessException("error",400,resource + " not found")
+        return self.db[resource].find_one({"_id": obj_id}, mask), 200
 
-    def remove(self, obj_id, resource = None):
-        if not resource:
-            resource = self.resource
+    def remove(self, obj_id, resource = None, projection = None):
+        resource = resource if resource else self.resource
+        mask = self.projection_helper(projection) if projection else self.mask
         obj_id = convertToObjectId(obj_id)
         if not obj_id:
-            return {"status": 400, "detail": "Invalid " + resource + " id"}, 400
+            raise BussinessException("error",400, "Invalid " + resource + " id")
         result = self.db[self.resource].delete_one({"_id": obj_id})
         if not result.deleted_count:
-            return {"status": 400, "detail": resource + " not found"}, 400
+            raise BussinessException("error",400,resource + " not found")
         return {"id": obj_id, "detail": resource  + " successfully removed"}, 200
 
-    def retrieve(self, obj_id, resource = None):
-        if not resource:
-            resource = self.resource
+    def retrieve(self, obj_id, resource = None, projection = None):
+        resource = resource if resource else self.resource
+        mask = self.projection_helper(projection) if projection else self.mask
         obj_id = convertToObjectId(obj_id)
         if not obj_id:
-            return {"status": 400, "detail": "Invalid " + resource + " id"}, 400
-        result = self.db[resource].find_one({"_id": obj_id}, self.mask)
+            raise BussinessException("error",400,"Invalid " + resource + " id")
+        result = self.db[resource].find_one({"_id": obj_id}, mask)
         if not result:
-            return {"status": 400, "detail": resource + " not found"}, 400
+            raise BussinessException("error",400,resource + " not found")
         return result, 200
 
     # To-DO add sorting, filtering
-    def retrieveAll(self, search=None, resource = None):
-        if not resource:
-            resource = self.resource
-        result = list(self.db[resource].find(search, self.mask))
+    def retrieveAll(self, search=None, resource = None, projection = None):
+        resource = resource if resource else self.resource
+        mask = self.projection_helper(projection) if projection else self.mask
+        result = list(self.db[resource].find(search, mask))
         if not result:
-            return {"status": 400, "detail": resource + " list is empty"}, 400
+            raise BussinessException("error",400,resource + " list is empty")
         return result, 200
 
     # -------------  subresource APIs ----------------------
     #-------------------------------------------------------
 
+    # TO-DO Is this really needed? Can it be merged with resource API. 
+    # By calling resource API with resouces <resourceName>.<subresouceName>
+
     # move 'data = {self.subresource : data}' to dot notation format to support sub-subresources
     # insert or update does the same logic. Hence, use update for both apis.
 
-    def subresource_update_data_helper(self, data, resource = None, subresource = None):
-        if not resource:
-            resource = self.resource
-        if not subresource:
-            subresource = self.subresource
+    def subresource_update_data_helper(self, data, subresource):
+        subresource = subresource if subresource else self.subresource
         subresource_data = {}
         for key,value in data.items():
             subresource_data[subresource+"."+key] = value
         return subresource_data
 
-    def update_subdocument(self, obj_id, data, resource = None, subresource = None):
-        if not resource:
-            resource = self.resource
-        if not subresource:
-            subresource = self.subresource
+    def update_subdocument(self, obj_id, data, resource = None, subresource = None, projection = None):
+        resource = resource if resource else self.resource
+        subresource = subresource if subresource else self.subresource
+        mask = self.projection_helper(projection,subresource) if projection else self.mask
         obj_id = convertToObjectId(obj_id)
         if not obj_id:
-            return {"status": 400, "detail": "Invalid " + resource + " id"}, 400
-        data = self.subresource_update_data_helper(data)
+            raise BussinessException("error",400,"Invalid " + resource + " id")
+        data = self.subresource_update_data_helper(data, subresource)
         result = self.db[resource].update_one({"_id": obj_id}, {'$set': data})
         if not result.matched_count:
-            return {"status": 400, "detail": resource + " not found"}, 400
-        return self.db[resource].find_one({"_id": obj_id}, self.mask)[subresource], 200
+            raise BussinessException("error",400,resource + " not found")
+        return self.db[resource].find_one({"_id": obj_id}, mask)[subresource], 200
 
-    def remove_subdocument(self, obj_id, resource = None, subresource = None):
-        if not resource:
-            resource = self.resource
-        if not subresource:
-            subresource = self.subresource
+    def remove_subdocument(self, obj_id, resource = None, subresource = None, projection = None):
+        resource = resource if resource else self.resource
+        subresource = subresource if subresource else self.subresource
+        mask = self.projection_helper(projection,subresource) if projection else self.mask
         obj_id = convertToObjectId(obj_id)
         if not obj_id:
-            return {"status": 400, "detail": "Invalid " + resource + " id"}, 400
+            raise BussinessException("error",400, "Invalid " + resource + " id")
         result = self.db[resource].update_one({"_id": obj_id}, {'$unset': { subresource : ""}})
         if not result.matched_count:
-            return {"status": 400, "detail": subresource + " not found"}, 400 
+            raise BussinessException("error",400,subresource + " not found")
         return {"id": obj_id, "detail": subresource  + " successfully removed"}, 200
 
-    def retrieve_subdocument(self, obj_id, resource = None, subresource = None):
-        if not resource:
-            resource = self.resource
-        if not subresource:
-            subresource = self.subresource
+    def retrieve_subdocument(self, obj_id, resource = None, subresource = None, projection = None):
+        resource = resource if resource else self.resource
+        subresource = subresource if subresource else self.subresource
+        mask = self.projection_helper(projection,subresource) if projection else self.mask
         obj_id = convertToObjectId(obj_id)
         if not obj_id:
-            return {"status": 400, "detail": "Invalid " + resource + " id"}, 400
-        result = self.db[resource].find_one({"_id": obj_id}, self.mask)
+            raise BussinessException("error",400,"Invalid " + resource + " id")
+        result = self.db[resource].find_one({"_id": obj_id}, mask)
         if not result:
-            return {"status": 400, "detail": subresource + " not found"}, 400
+            raise BussinessException("error",400,subresource + " not found")
         result = result.get(subresource,None)
         if not result:
-            return {"status": 400, "detail": subresource + " not found"}, 400
+            raise BussinessException("error",400,subresource + " not found")
         return result, 200
 
     # -------------  subresource Array APIs ----------------------
     #-------------------------------------------------------------
 
-    def subresource_array_update_data_helper(self,data,resource = None, subresource = None):
-        if not resource:
-            resource = self.resource
-        if not subresource:
-            subresource = self.subresource
+    # TO-DO mask working. Current implementation is broken and makes no sense.
+
+    def subresource_array_update_data_helper(self,data,subresource):
         subresource_data = {}
         for key,value in data.items():
             subresource_data[subresource+".$."+key] = value
         return subresource_data
 
-    def insert_subdocument_array(self, obj_id, data, resource = None, subresource = None):
-        if not resource:
-            resource = self.resource
-        if not subresource:
-            subresource = self.subresource
+    # objectId can be passed from the application
+    def insert_subdocument_array(self, obj_id, data, resource = None, subresource = None, projection = None, objectId = None):
+        resource = resource if resource else self.resource
+        subresource = subresource if subresource else self.subresource
+        mask = self.projection_helper(projection) if projection else self.mask
         obj_id = convertToObjectId(obj_id)
         if not obj_id:
-            return {"status": 400, "detail": "Invalid " + resource + " id"}, 400
-        sub_obj_id = ObjectId()
-        data["_id"] = sub_obj_id
+            raise BussinessException("error",400,"Invalid " + resource + " id")
+        data["_id"] = objectId if objectId else ObjectId() # sub_obj_id
         data = {
             subresource : data
         }
         result = self.db[resource].update_one({"_id": obj_id}, {'$push': data})
         if not result.matched_count:
-            return {"status": 400, "detail": subresource + " not found"}, 400
-        return self.db[resource].find_one({"_id": obj_id}, self.mask)[subresource][0], 200
+            raise BussinessException("error",400,subresource + " not found")
+        return self.db[resource].find_one({"_id": obj_id}, mask)[subresource][0], 200
         
     # if the element doesn't exist throw error. Now it inserts new field
-    def update_subdocument_array(self, obj_id, data, sub_obj_id, resource = None, subresource = None):
-        if not resource:
-            resource = self.resource
-        if not subresource:
-            subresource = self.subresource
+    def update_subdocument_array(self, obj_id, data, sub_obj_id, resource = None, subresource = None, projection = None):
+        resource = resource if resource else self.resource
+        subresource = subresource if subresource else self.subresource
+        mask = self.projection_helper(projection) if projection else self.mask
         obj_id = convertToObjectId(obj_id)
         if not obj_id:
-            return {"status": 400, "detail": "Invalid " + resource + " id"}, 400
+            raise BussinessException("error",400, "Invalid " + resource + " id")
         sub_obj_id = convertToObjectId(sub_obj_id)
         if not sub_obj_id:
-            return {"status": 400, "detail": "Invalid " + subresource + " id"}, 400
-        data = self.subresource_array_update_data_helper(data)
-        result = self.db[resource].update_one({ "requirements._id" :  sub_obj_id}, {'$set': data })
+            raise BussinessException("error",400,resource + subresource + " id")
+        data = self.subresource_array_update_data_helper(data,subresource)
+        result = self.db[resource].update_one({ subresource+"._id" :  sub_obj_id}, {'$set': data })
         if not result.matched_count:
-            return {"status": 400, "detail": subresource + " not found"}, 400
-        result = self.db[resource].find_one({ "requirements._id" :  sub_obj_id}, self.mask)
+            raise BussinessException("error",400,subresource + " not found")
+        result = self.db[resource].find_one({ subresource+"._id" :  sub_obj_id}, mask)
         result = result.get(subresource,None)[0]
         if not result:
-            return {"status": 400, "detail": subresource + " not found"}, 400
+            raise BussinessException("error",400,resource + subresource + " not found")
         return result, 200
 
     # unset on array makes the element null, insead of removing from the array
-    def remove_subdocument_array(self, obj_id, sub_obj_id, resource = None, subresource = None):
-        if not resource:
-            resource = self.resource
-        if not subresource:
-            subresource = self.subresource
+    def remove_subdocument_array(self, obj_id, sub_obj_id, resource = None, subresource = None, projection = None):
+        resource = resource if resource else self.resource
+        subresource = subresource if subresource else self.subresource
+        mask = self.projection_helper(projection) if projection else self.mask
         obj_id = convertToObjectId(obj_id)
         if not obj_id:
-            return {"status": 400, "detail": "Invalid " + resource + " id"}, 400
+            raise BussinessException("error",400,"Invalid " + resource + " id")
         sub_obj_id = convertToObjectId(sub_obj_id)
         if not sub_obj_id:
-            return {"status": 400, "detail": "Invalid " + subresource + " id"}, 400
+            raise BussinessException("error",400,resource + "Invalid " + subresource + " id")
         result = self.db[resource].update_one({ "_id": obj_id}, {'$pull': {subresource : {"_id" : sub_obj_id }}})
         # since we find with obj_id, it always matches and result.matchcount will be 1
-        result = self.db[resource].find_one({ "requirements._id" :  sub_obj_id }, {subresource + ".$" : 1})
+        result = self.db[resource].find_one({ subresource+"._id" :  sub_obj_id }, {subresource + ".$" : 1})
         if result:
-            return {"status": 400, "detail": subresource + " not found"}, 400
+            raise BussinessException("error",400,resource + subresource + " not found")
         return {"id": sub_obj_id, "detail": subresource  + " successfully removed"}, 200
 
-    def retrieve_subdocument_array(self, obj_id, sub_obj_id, resource = None, subresource = None):
-        if not resource:
-            resource = self.resource
-        if not subresource:
-            subresource = self.subresource
+    def retrieve_subdocument_array(self, obj_id, sub_obj_id, resource = None, subresource = None, projection = None):
+        resource = resource if resource else self.resource
+        subresource = subresource if subresource else self.subresource
+        mask = self.projection_helper(projection) if projection else self.mask
         obj_id = convertToObjectId(obj_id)
         if not obj_id:
-            return {"status": 400, "detail": "Invalid " + resource + " id"}, 400
+            raise BussinessException("error",400,resource + "Invalid " + resource + " id")
         sub_obj_id = convertToObjectId(sub_obj_id)
         if not sub_obj_id:
-            return {"status": 400, "detail": "Invalid " + subresource + " id"}, 400
-        result = self.db[resource].find_one({ "requirements._id" :  sub_obj_id }, {subresource + ".$" : 1})
+            raise BussinessException("error",400,resource + "Invalid " + subresource + " id")
+        print(subresource)
+        result = self.db[resource].find_one({ subresource+"._id" :  sub_obj_id }, {subresource + ".$" : 1})
         # Using non-Index field to query. Use aggregate to improve performace.
         # query with parent index and then with sub index
         if not result:
-            return {"status": 400, "detail": subresource + " not found"}, 400
+            raise BussinessException("error",400,resource + " not found")
         result = result.get(subresource,None)[0]
         if not result:
-            return {"status": 400, "detail": subresource + " not found"}, 400
+            raise BussinessException("error",400,resource + " not found")
         return result, 200
 
     # TO-DO filter, sort
-    def retrieveAll_subdocument_array(self, obj_id, resource = None, subresource = None):
-        if not resource:
-            resource = self.resource
-        if not subresource:
-            subresource = self.subresource
+    def retrieveAll_subdocument_array(self, obj_id, resource = None, subresource = None, projection = None):
+        resource = resource if resource else self.resource
+        subresource = subresource if subresource else self.subresource
+        mask = self.projection_helper(projection) if projection else self.mask
         obj_id = convertToObjectId(obj_id)
         if not obj_id:
-            return {"status": 400, "detail": "Invalid " + resource + " id"}, 400
-        result = self.db[resource].find_one({"_id": obj_id}, self.mask)
+            raise BussinessException("error",400,"Invalid " + resource + " id")
+        result = self.db[resource].find_one({"_id": obj_id}, mask)
         if not result:
-            return {"status": 400, "detail": resource + " list is empty"}, 400
+            raise BussinessException("error",400,resource + " list is empty")
         result = result.get(subresource,None)
         if not result:
-            return {"status": 400, "detail": subresource + " not found"}, 400
+            raise BussinessException("error",400,resource + " not found")
         return result, 200
