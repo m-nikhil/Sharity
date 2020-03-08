@@ -9,7 +9,7 @@ class UserTransactionView(SuperView):
 
     resource = 'user'
     subresource = 'transaction'
-    mask = None
+    mask = ['fromId','toId']
 
-    def getAll(self, ngoId):
-      return self.retrieveAll_subdocument(ngoId)
+    def getAll(self, userId):
+      return self.retrieve_subdocument(userId)

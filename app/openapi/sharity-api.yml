@@ -4,8 +4,9 @@ info:
   title: Sharity Docs
 servers:
   - url: http://localhost:5000
+security:
+  - jwt: ['secret']
 paths:
-
   /user:
     $ref: "./userapi.yml#user"
   '/user/{userId}':
@@ -42,9 +43,14 @@ paths:
     $ref: "./transactionapi.yml#transaction"
   '/transaction/{transactionId}':
     $ref: "./transactionapi.yml#transaction~1{transactionId}"
+
+  /auth/login:
+    $ref: "./authapi.yml#login"
     
 components:
   $ref: "./schemas.yml"
+
+
 
 
 # Subresource considerations for a nested propery object of an entity:

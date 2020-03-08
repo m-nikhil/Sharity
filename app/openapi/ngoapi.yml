@@ -32,6 +32,8 @@ ngo:
             application/json:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
+      security: []
+
     post:
       summary: Create a ngo
       operationId: app.api.NgoView.post
@@ -56,6 +58,7 @@ ngo:
             application/json:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
+      security: []
 
 ngo/{ngoId}:
     get:
@@ -85,6 +88,7 @@ ngo/{ngoId}:
             application/json:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
+      security: []
 
     put:
       summary: Update a ngo
@@ -333,6 +337,8 @@ ngo/{ngoId}/requirements/{requirementId}:
             application/json:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
+      security: []
+                
 
     put:
       summary: Update ngo documents
@@ -433,6 +439,8 @@ ngo/{ngoId}/requirements:
             application/json:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
+      security: []
+
     post:
       summary: Create a requirement
       operationId: app.api.NgoRequirementsView.post
@@ -493,3 +501,4 @@ ngo/{ngoId}/transaction:
             application/json:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
+      security: []

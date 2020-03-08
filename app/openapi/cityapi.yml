@@ -19,6 +19,7 @@ city:
             application/json:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
+      security: []
     post:
       summary: Create a city
       operationId: app.api.CityView.post
@@ -70,6 +71,7 @@ city/{cityId}:
             application/json:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
+      security: []
 
     put:
       summary: Update a city

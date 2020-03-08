@@ -1,4 +1,3 @@
-
 schemas:
   User:
       type: "object"
@@ -43,6 +42,7 @@ schemas:
         isAdmin:
           type: "boolean"
           readOnly: true
+          default: false
         password:
           type: "string"
           format: "password"
@@ -73,6 +73,10 @@ schemas:
     properties:
       city:
         type: "string"
+        readOnly: true
+      cityId:
+        type: "string"
+        writeOnly: true
       street:
         type: "string"
       address:
@@ -254,6 +258,11 @@ schemas:
         type: "array"
         items:
             type: "string"
+      requirements:
+        type: "array"
+        items:
+          $ref: "#schemas/requirement"
+        readOnly: true
 
   NgoEditable:
       type: "object"
@@ -324,7 +333,26 @@ schemas:
       details:
         type: "string"
 
+  Login:
+    type: "object"
+    additionalProperties: false
+    properties:
+      email:
+        type: "string"
+        format: "email"
+      password:
+        type: "string"
+        format: "password"
+      confirmpassword:
+        type: "string"
+        format: "password"
+      isNgo:
+        type: "boolean"
+        default: false
+
+
   Error:
+    type: "object"
     required:
       - status
       - detail
@@ -340,6 +368,7 @@ schemas:
         type: string
 
   Delete:
+    type: "object"
     required:
       - id
     properties:
@@ -347,3 +376,10 @@ schemas:
         type: string
       detail:
         type: string
+
+securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-bearerInfoFunc: app.api.AuthView.decode_token

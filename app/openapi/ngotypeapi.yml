@@ -19,6 +19,7 @@ ngoType:
             application/json:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
+      security: []
     post:
       summary: Create a ngo type
       operationId: app.api.NgoTypeView.post
@@ -70,6 +71,7 @@ ngoType/{ngoTypeId}:
             application/json:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
+      security: []
 
     put:
       summary: Update a ngo type

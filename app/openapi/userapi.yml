@@ -43,6 +43,7 @@ user:
             application/json:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
+      security: []
 
 user/{userId}:
     get:

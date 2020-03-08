@@ -1,0 +1,26 @@
+login:
+    post:
+      summary: Return JWT token
+      operationId: app.api.AuthView.login
+      tags:
+        - auth
+      requestBody:
+        description: Login credentials
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas.yml#/schemas/Login"
+      responses:
+        '200':
+          description: JWT token
+          content:
+            'text/plain':
+              schema:
+                type: string
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+      security: []

@@ -1,6 +1,6 @@
 from flask import request
 from app.MethodView import SuperView
-
+from app.util import exists
 
 class NgoView(SuperView):
     """ Create NGO service
@@ -9,14 +9,20 @@ class NgoView(SuperView):
     _decorators = []
 
     resource = 'ngo'
-    mask = {'password': False, 'bankdetails' : False, 'requirements': False, 'documents': False, 'transaction': False}
+    mask = ['password', 'bankdetails', 'documents', 'transaction', 'location.cityId']
 
     def post(self):
-      body = request.json 
+      body = request.json
+      # fetch city
+      if exists(body,['location','cityId']):
+        body['location']['city'] = self.retrieve(body['location']['cityId'],'city',['city'])[0]['city']
       return self.insert(body)
 
     def put(self, ngoId):
       body = request.json
+      # fetch city
+      if exists(body,['location','cityId']):
+        body['location']['city'] = self.retrieve(body['location']['cityId'],'city',['city'])[0]['city']
       return self.update(ngoId, body)
 
     def delete(self, ngoId):
