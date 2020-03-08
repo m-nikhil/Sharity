@@ -24,3 +24,14 @@
 - index email of user collection
 - index name,email of Ngo collection
 - no index in Ngo collection 
+
+
+### To do sharity
+- image/documents static files
+- ngo approval
+- google/FB signin (P4)
+- search feature, geolocation
+- hash password
+- ngo type api update
+- make as admin
+- inpect token endpoint
