@@ -1,6 +1,7 @@
 
 import os, sys
 import connexion
+from app.ConnectionBusinessException import BussinessException
 from app.CustomViewResolver import CustomViewResolver
 from connexion.apps.flask_app import FlaskJSONEncoder
 import app.api
@@ -10,6 +11,9 @@ from typing import Any, Dict
 from pathlib import Path
 from bson import ObjectId
 from swagger_ui_bundle import swagger_ui_3_path
+from flask import Response
+import json
+from app.AuthzModule import Authz
 
 class CustomJSONEncoder(FlaskJSONEncoder):
         def default(self, obj):
@@ -22,7 +26,6 @@ def get_bundled_specs(main_file: Path) -> Dict[str, Any]:
                                     lazy = True, strict = True)
     parser.parse()
     return parser.specification
-
 
 def create_app(test_config=None):
     # create and configure the app
@@ -55,12 +58,23 @@ def create_app(test_config=None):
     if(not res['ok']):
         sys.exit("Error: Couldn't reach the database.")
 
+    #Authz Module (needs to be before connexion)
+    authzfile = Path("app/authzfile.yml")
+    authz = Authz()
+    authz.initializeAuthz(authzfile)
+
     #swagger
+    def return_response(exeception):
+        return Response(response= json.dumps({"title" : exeception.title, "status" : exeception.status, "detail" : exeception.detail}), status = exeception.status, mimetype="application/json")
+
     options = {'swagger_path': swagger_ui_3_path}
     connexionApp.add_api(get_bundled_specs(Path("app/openapi/sharity-api.yml")),
                 options=options,
                 arguments={'title': 'Sharity Docs'},
                 resolver=CustomViewResolver('app.api'), validate_responses=True )
+    connexionApp.add_error_handler(BussinessException, return_response)
+
+
 
     # Ping route
     @app.route('/ping')
@@ -68,4 +82,3 @@ def create_app(test_config=None):
         return 'Sharity app is up running :)'
 
     return app
-

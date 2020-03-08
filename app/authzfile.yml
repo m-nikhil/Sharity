@@ -1,0 +1,68 @@
+roles:
+  - admin:global
+  - ngo
+  - user
+
+# comment those don't need jwt auth
+# [] denotes no roles expect global
+rules:
+
+  /user:
+    GET: []
+    #POST: None
+  '/user/<userId>':
+    GET:  [user:curr]
+    PUT: [user:curr]
+    DELETE: []
+  '/user/<userId>/transaction':
+    GET: [user:curr]
+
+  /ngo:
+    #GET: None
+    #POST: None
+  '/ngo/<ngoId>':
+    #GET: None
+    PUT:  [ngo:curr]
+    DELETE: []
+  '/ngo/<ngoId>/bankdetails':
+    GET: [ngo:curr]
+    PUT: [ngo:curr]
+    DELETE: [ngo:curr]
+  '/ngo/<ngoId>/documents':
+    GET: [ngo:curr]
+    PUT: [ngo:curr]
+  '/ngo/<ngoId>/requirements':
+    #GET: None
+    POST: [ngo:curr]
+  '/ngo/<ngoId>/requirements/<requirementId>':
+    #GET: None
+    PUT: [ngo:curr]
+    DELETE: [ngo:curr]
+  '/ngo/<ngoId>/transaction':
+    #GET: None
+
+  /city:
+    #GET: None
+    POST: []
+  '/city/<cityId>':
+    #GET: None
+    PUT:  []
+    DELETE: []
+
+  /ngotype:
+    #GET:  None
+    POST: []
+  '/ngotype/<ngoTypeId>':
+    #GET: None
+    PUT: []
+    DELETE: []
+
+  /transaction:
+    GET: []
+    POST: [user]
+  '/transaction/<transactionId>':
+    GET: []
+    DELETE: []
+
+  /auth/login:
+    #POST: None
