@@ -1,5 +1,4 @@
 from pymongo import MongoClient
-from flask import g
 
 class Database(object):
         __instance = None
@@ -23,7 +22,7 @@ class Database(object):
         @staticmethod 
         def getInstance():
                 if Database.__instance == None:
-                        Database()
+                        raise Exception("This class not initialized!")
                 return Database.__instance
 
         def getConnection(self):
