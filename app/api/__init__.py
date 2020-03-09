@@ -1,5 +1,6 @@
 from .user.userView import UserView
 from .user.userTransactionView import UserTransactionView
+from .user.userAdminView import UserAdminView
 from .ngo.ngoView import NgoView
 from .ngo.ngoBankDetailsView import NgoBankDetailsView
 from .ngo.ngoDocumentsView import NgoDocumentsView

@@ -10,7 +10,7 @@ class UserView(SuperView):
     _decorators = []
 
     resource = 'user'
-    mask = {'active': False, 'isAdmin': False, 'transations': False, 'password': False, 'transaction': False}
+    mask = {'active': False, 'transations': False, 'password': False, 'transaction': False}
 
     def post(self):
       body = request.json

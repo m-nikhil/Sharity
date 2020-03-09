@@ -13,6 +13,8 @@ paths:
     $ref: "./userapi.yml#user~1{userId}"
   '/user/{userId}/transaction':
     $ref: "./userapi.yml#user~1{userId}~1transaction"
+  '/user/{userId}/admin':
+    $ref: "./userapi.yml#user~1{userId}~1admin"
 
   /ngo:
     $ref: "./ngoapi.yml#ngo"

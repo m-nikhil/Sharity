@@ -9,13 +9,16 @@ class NgoView(SuperView):
     _decorators = []
 
     resource = 'ngo'
-    mask = ['password', 'bankdetails', 'documents', 'transaction', 'location.cityId']
+    mask = ['password', 'bankdetails', 'documents', 'transaction', 'location.cityId', 'ngotypeId']
 
     def post(self):
       body = request.json
       # fetch city
       if exists(body,['location','cityId']):
         body['location']['city'] = self.retrieve(body['location']['cityId'],'city',['city'])[0]['city']
+      # fetch ngotype
+      if exists(body,['ngotypeId']):
+        body['ngotype'] = self.retrieve(body['ngotypeId'],'ngoType',['ngotype'])[0]['ngotype']
       return self.insert(body)
 
     def put(self, ngoId):
@@ -23,6 +26,9 @@ class NgoView(SuperView):
       # fetch city
       if exists(body,['location','cityId']):
         body['location']['city'] = self.retrieve(body['location']['cityId'],'city',['city'])[0]['city']
+      # fetch ngotype
+      if exists(body,['ngotypeId']):
+        body['ngotype'] = self.retrieve(body['ngotypeId'],'ngoType',['ngotype'])[0]['ngotype']
       return self.update(ngoId, body)
 
     def delete(self, ngoId):

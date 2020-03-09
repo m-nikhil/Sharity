@@ -158,3 +158,56 @@ user/{userId}/transaction:
             application/json:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
+
+user/{userId}/admin:
+    post:
+      summary: make the specific user as admin
+      operationId: app.api.UserAdminView.post
+      tags:
+        - users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The id of the user to make as admin
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Action"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+
+    delete:
+      summary: unassign a user from Admin
+      operationId: app.api.UserAdminView.delete
+      tags:
+        - users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The id of the user to unassign from Admin
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Null response
+          content:
+            application/json:
+              schema:
+                  $ref: "./schemas.yml#/schemas/Action"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"

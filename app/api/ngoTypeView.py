@@ -18,6 +18,8 @@ class NgoTypeView(SuperView):
 
     def put(self, ngoTypeId):
       body = request.json
+      db = self.getConnection()
+      db.ngo.update({"ngotypeId" : ngoTypeId}, {"$set" : { "ngotypeId" : body['ngotype']}})
       return self.update(ngoTypeId, body)
 
     def delete(self, ngoTypeId):

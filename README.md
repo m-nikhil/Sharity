@@ -34,4 +34,4 @@
 - hash password
 - ngo type api update
 - make as admin
-- inpect token endpoint
+- filtes on ngo,user,transaction admin filter, city...

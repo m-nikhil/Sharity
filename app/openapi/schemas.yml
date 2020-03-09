@@ -42,7 +42,6 @@ schemas:
         isAdmin:
           type: "boolean"
           readOnly: true
-          default: false
         password:
           type: "string"
           format: "password"
@@ -239,6 +238,10 @@ schemas:
         type: "string"
       ngotype:
         type: "string"
+        readOnly: true
+      ngotypeId:
+        type: "string"
+        writeOnly: true
       numberOfPeopleStaying:
         type: "integer"
         minimum: 1
@@ -280,8 +283,8 @@ schemas:
           pattern: '^\d{10}$'
         description:
           type: "string"
-        ngotype:
-          $ref: "#schemas/NgoType"
+        ngotypeId:
+          type: "string"
         numberOfPeopleStaying:
           type: "integer"
           minimum: 1
@@ -368,6 +371,16 @@ schemas:
         type: string
 
   Delete:
+    type: "object"
+    required:
+      - id
+    properties:
+      id:
+        type: string
+      detail:
+        type: string
+
+  Action:
     type: "object"
     required:
       - id

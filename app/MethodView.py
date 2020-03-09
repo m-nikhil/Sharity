@@ -43,10 +43,13 @@ class SuperView(views.MethodView):
                     subresource_mask[cls.subresource+'.'+field] = False
             cls.mask = subresource_mask
         elif ((not type(cls.mask) is property) and (not type(cls.mask) is type(None))):
-            mask = {}
-            for field in cls.mask:
-                    mask[field] = False
-            cls.mask = mask
+            if cls.mask == 'ALL': #to mask all the fields
+                cls.mask = {'_id' : True}
+            else:
+                mask = {}
+                for field in cls.mask:
+                        mask[field] = False
+                cls.mask = mask
             
         
     _decorators = {}

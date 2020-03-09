@@ -16,6 +16,9 @@ rules:
     DELETE: []
   '/user/<userId>/transaction':
     GET: [user:curr]
+  '/user/<userId>/admin':
+    GET: []
+    POST: []
 
   /ngo:
     #GET: None
