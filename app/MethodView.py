@@ -5,13 +5,14 @@
 
 
 
-from flask import request
-from flask import views
+from flask import request, send_file, views
 from app.database import Database
 from pymongo import errors
 from bson import ObjectId
 from app.ConnectionBusinessException import BussinessException
 import json
+from werkzeug.utils import secure_filename
+import io
 
 # views.MethodViewType.__init__ = MethodViewType.__init__
 
@@ -50,6 +51,11 @@ class SuperView(views.MethodView):
                 for field in cls.mask:
                         mask[field] = False
                 cls.mask = mask
+
+    # Mongo Collection used for static files
+    # primary key is _id
+    # unique key is unique field
+    __static_collection = "static"
             
         
     _decorators = {}
@@ -122,6 +128,7 @@ class SuperView(views.MethodView):
     # TO-DO projection nothing
     # TO-DO param to avoid the second DB call. No return
     # TO-DO foreign key
+    # TO-DO unset data in update. Make it generic with body
     # make a generic builder pattern with customise query
     
     # STANDARDS followed:
@@ -164,7 +171,7 @@ class SuperView(views.MethodView):
         obj_id = convertToObjectId(obj_id)
         if not obj_id:
             raise BussinessException("error",400, "Invalid " + resource + " id")
-        result = self.db[self.resource].delete_one({"_id": obj_id})
+        result = self.db[resource].delete_one({"_id": obj_id})
         if not result.deleted_count:
             raise BussinessException("error",400,resource + " not found")
         return {"id": obj_id, "detail": resource  + " successfully removed"}, 200
@@ -205,15 +212,20 @@ class SuperView(views.MethodView):
             subresource_data[subresource+"."+key] = value
         return subresource_data
 
-    def update_subdocument(self, obj_id, data, resource = None, subresource = None, projection = None):
+    def update_subdocument(self, obj_id, data, unset_data = None, resource = None, subresource = None, projection = None):
         resource = resource if resource else self.resource
         subresource = subresource if subresource else self.subresource
         mask = self.projection_helper(projection,subresource) if projection else self.mask
         obj_id = convertToObjectId(obj_id)
         if not obj_id:
             raise BussinessException("error",400,"Invalid " + resource + " id")
-        data = self.subresource_update_data_helper(data, subresource)
-        result = self.db[resource].update_one({"_id": obj_id}, {'$set': data})
+        # optimse this using only data and removing unset_data
+        update = {}
+        if data:
+            update['$set'] = self.subresource_update_data_helper(data, subresource)
+        if unset_data:
+            update['$unset'] = self.subresource_update_data_helper(unset_data, subresource)
+        result = self.db[resource].update_one({"_id": obj_id}, update)
         if not result.matched_count:
             raise BussinessException("error",400,resource + " not found")
         return self.db[resource].find_one({"_id": obj_id}, mask)[subresource], 200
@@ -348,3 +360,95 @@ class SuperView(views.MethodView):
         if not result:
             raise BussinessException("error",400,resource + " not found")
         return result, 200
+
+    #---------------------------- Static -------------------------------------
+    # add gzip protocol
+
+    ALLOWED_EXTENSIONS = {'doc', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
+    def allowed_file(self, filename):
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in self.ALLOWED_EXTENSIONS
+
+    # Structure of static collection
+    # binary - the file itself
+    # meta - meta data about file - like date of upload, user id
+    # authz_type - used for authz
+    # unique - used to identify uniqly which can be build from known fields; used for deleting old file
+
+    def delete_helper(self,unique):
+        resource = self.__static_collection
+        if not unique:
+            raise BussinessException("error",400, "Invalid file name")
+        result = self.db[resource].delete_one({"unique": unique})
+        if not result.deleted_count:
+            raise BussinessException("error",400, "File not found")
+        return None
+
+    def uploadStatic(self,file,delete,meta,authz_type,unique):
+        
+        if delete:
+            return self.delete_helper(unique)
+
+        if file is None:
+            raise BussinessException("error",400, "No file attached.")
+
+        resource = self.__static_collection
+        data = {}
+
+        if not unique:
+            raise BussinessException("upload API error",500, "Contact Admin")
+        data['unique'] = unique
+
+        if file.filename == '':
+            raise BussinessException("error",400, "No file selected")
+        if not self.allowed_file(file.filename):
+            raise BussinessException("error",400, "File format not allowed")
+
+        # filenames can be dangerous, so use secure_filename
+        meta['filename'] = secure_filename(file.filename)
+        data['binary'] = file.read()
+        data['meta'] = meta
+        data['authz_type'] = authz_type
+
+        try:
+            # replace_one doc - https://api.mongodb.com/python/current/api/pymongo/collection.html#pymongo.collection.Collection.replace_one
+            result = self.db[resource].replace_one({"unique": unique},data, True)
+            if result.matched_count > 1:
+                pass # TODO log this part; dont throw error.
+        except Exception as e:
+            raise BussinessException("error",500, "Upload document failed")
+
+        obj_id = self.db[resource].find_one({"unique": unique}, {"_id": True})["_id"]
+        
+        return "/"+authz_type+"/"+str(obj_id)
+
+    # using this the file url in the resource becomes stale.
+    # used only by Admin and incase of urgent.
+    def deleteStatic(self,id):
+        resource = self.__static_collection
+        obj_id = convertToObjectId(id)
+        if not obj_id:
+            raise BussinessException("error",400, "Invalid file url")
+        result = self.db[resource].delete_one({"_id": obj_id})
+        if not result.deleted_count:
+            raise BussinessException("error",400, "File not found")
+        return {"url": type+"/"+id, "detail": "File successfully removed"}, 200
+
+
+    # url format host+authz_type+fileId
+    # authz_type to perform authz before database read
+    # incase of authz of curr, database meta is read
+    def retriveStatic(self,type,id):
+        resource = self.__static_collection
+        obj_id = convertToObjectId(id)
+        if not obj_id:
+            raise BussinessException("error",400, "Invalid file url")
+        result = self.db[resource].find_one({"_id": obj_id},{"_id": False,"binary": True})
+        if not result:
+            raise BussinessException("error",400, "File not found")
+        response =  send_file(io.BytesIO(result['binary']), attachment_filename="download.pdf", as_attachment=True)
+        response.headers["Content-Type"] = 'application/pdf'
+        response.direct_passthrough = False
+        return response, 200
+        
+        

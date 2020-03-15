@@ -1,0 +1,68 @@
+
+static/{type}/{id}:
+    get:
+      summary: Retrieve a static file
+      operationId: app.api.StaticView.get
+      tags:
+        - static
+      parameters:
+        - name: type
+          in: path
+          required: true
+          description: type of the file to retrieve
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: id of the file to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/pdf:
+              schema:
+                  type: string
+                  format: base64
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"
+      security: []
+
+    delete:
+      summary: Delete a static file
+      operationId: app.api.StaticView.delete
+      description: "Using this the file url in the resource becomes stale. Use only by Admin and incase of urgent"
+      tags:
+        - static
+      parameters:
+        - name: type
+          in: path
+          required: true
+          description: type of the file to retrieve
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: id of the file to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Null response
+          content: 
+            application/json:
+              schema:
+                  $ref: "./schemas.yml#/schemas/StaticDelete"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"

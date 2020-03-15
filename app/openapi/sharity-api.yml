@@ -46,6 +46,9 @@ paths:
   '/transaction/{transactionId}':
     $ref: "./transactionapi.yml#transaction~1{transactionId}"
 
+  '/static/{type}/{id}':
+    $ref: "./staticapi.yml#static~1{type}~1{id}"
+
   /auth/login:
     $ref: "./authapi.yml#login"
     

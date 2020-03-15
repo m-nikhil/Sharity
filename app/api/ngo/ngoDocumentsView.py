@@ -13,11 +13,25 @@ class NgoDocumentsView(SuperView):
 
     def put(self, ngoId):
       req = dict(request.form)
-      print(req)
-      body = {}
-      body[req['filename']] =  "http://to-be-done"
-      # TO-DO file storage and update body data
-      return self.update_subdocument(ngoId, body)
+      filename = req['filename']
+      delete =  True if req['delete'] == 'true' else False
+
+      file = request.files.get('file',None)
+      
+      unique = ngoId + "_" + filename
+
+      meta = {}
+      meta["ngoId"] = ngoId
+      path = self.uploadStatic(file,delete,meta,"ngoDocuments",unique)
+
+      if not delete:
+        unset_data = None
+        body = {filename: path}
+      else:
+        unset_data = {filename: ""}
+        body = None
+
+      return self.update_subdocument(ngoId, body, unset_data)
 
     def get(self, ngoId):
       return self.retrieve_subdocument(ngoId)

@@ -341,7 +341,7 @@ ngo/{ngoId}/requirements/{requirementId}:
                 
 
     put:
-      summary: Update ngo documents
+      summary: Update ngo requirement
       operationId: app.api.NgoRequirementsView.put
       tags:
         - ngos

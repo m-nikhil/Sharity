@@ -86,6 +86,9 @@ class Authz():
                                         raise BussinessException("error",500,"Authz error4; Contact Admin")
                 return False
 
+        def checkStaticAuthz(self):
+                pass
+
                 
                 
                 

@@ -9,4 +9,5 @@ from .ngo.ngoTransactionView import NgoTransactionView
 from .cityView import CityView
 from .ngoTypeView import NgoTypeView
 from .transactionView import TransactionView
+from .staticView import StaticView
 from .authView import AuthView

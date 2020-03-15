@@ -32,6 +32,4 @@
 - google/FB signin (P4)
 - search feature, geolocation
 - hash password
-- ngo type api update
-- make as admin
 - filtes on ngo,user,transaction admin filter, city...
