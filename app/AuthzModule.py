@@ -152,7 +152,7 @@ class Authz():
                                 if values[1] == "curr":
                                         obj_id = convertToObjectId(obj_id)
                                         if not obj_id:
-                                                raise BussinessException("error",400,"Invalid " + resource + " id")
+                                                raise BussinessException("error",400,"Invalid File id")
                                         result = self.db[self.__static_collection].find_one({"_id": obj_id},{"_id": False, "owner": True})
                                         if not result:
                                                 raise BussinessException("error",400, "File not found") 
