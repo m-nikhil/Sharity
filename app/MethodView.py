@@ -14,9 +14,7 @@ import json
 from werkzeug.utils import secure_filename
 import io
 
-# views.MethodViewType.__init__ = MethodViewType.__init__
-
-
+# move to util
 def convertToObjectId(obj_id):
     try:
         obj_id = ObjectId(obj_id)
@@ -372,7 +370,7 @@ class SuperView(views.MethodView):
     # Structure of static collection
     # binary - the file itself
     # meta - meta data about file - like date of upload, user id
-    # authz_type - used for authz
+    # owner - owner of document; used for authz
     # unique - used to identify uniqly which can be build from known fields; used for deleting old file
 
     def delete_helper(self,unique):
@@ -384,13 +382,19 @@ class SuperView(views.MethodView):
             raise BussinessException("error",400, "File not found")
         return None
 
-    def uploadStatic(self,file,delete,meta,authz_type,unique):
+    def uploadStatic(self,file,delete,meta,owner,doc_prefix,unique):
         
         if delete:
             return self.delete_helper(unique)
 
         if file is None:
             raise BussinessException("error",400, "No file attached.")
+
+        if owner is None:
+            raise BussinessException("error",500,"Authz error; Contact Admin")
+
+        if doc_prefix is None:
+            raise BussinessException("error",500,"Authz error; Contact Admin")
 
         resource = self.__static_collection
         data = {}
@@ -408,7 +412,7 @@ class SuperView(views.MethodView):
         meta['filename'] = secure_filename(file.filename)
         data['binary'] = file.read()
         data['meta'] = meta
-        data['authz_type'] = authz_type
+        data['owner'] = owner
 
         try:
             # replace_one doc - https://api.mongodb.com/python/current/api/pymongo/collection.html#pymongo.collection.Collection.replace_one
@@ -420,7 +424,7 @@ class SuperView(views.MethodView):
 
         obj_id = self.db[resource].find_one({"unique": unique}, {"_id": True})["_id"]
         
-        return "/"+authz_type+"/"+str(obj_id)
+        return "/"+doc_prefix+"/"+str(obj_id)
 
     # using this the file url in the resource becomes stale.
     # used only by Admin and incase of urgent.

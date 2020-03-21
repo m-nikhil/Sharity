@@ -32,7 +32,6 @@ static/{type}/{id}:
             application/json:
               schema:
                 $ref: "./schemas.yml#/schemas/Error"
-      security: []
 
     delete:
       summary: Delete a static file

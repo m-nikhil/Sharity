@@ -21,8 +21,7 @@ class NgoDocumentsView(SuperView):
       unique = ngoId + "_" + filename
 
       meta = {}
-      meta["ngoId"] = ngoId
-      path = self.uploadStatic(file,delete,meta,"ngoDocuments",unique)
+      path = self.uploadStatic(file,delete,meta,ngoId,"ngoDocuments",unique)
 
       if not delete:
         unset_data = None

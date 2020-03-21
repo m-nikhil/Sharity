@@ -69,3 +69,7 @@ rules:
 
   /auth/login:
     #POST: None
+
+static_rules:
+  ngoDocuments:
+    GET: [ngo:curr]
