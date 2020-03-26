@@ -52,7 +52,7 @@ class SuperView(views.MethodView):
 
     # Mongo Collection used for static files
     # primary key is _id
-    # unique key is unique field
+    # unique key is unique field and partial key. All rows don't have unique key.
     __static_collection = "static"
             
         
@@ -274,15 +274,15 @@ class SuperView(views.MethodView):
         obj_id = convertToObjectId(obj_id)
         if not obj_id:
             raise BussinessException("error",400,"Invalid " + resource + " id")
-        data["_id"] = objectId if objectId else ObjectId() # sub_obj_id
+        sub_obj_id = data["_id"] = objectId if objectId else ObjectId() # sub_obj_id
         data = {
             subresource : data
         }
         result = self.db[resource].update_one({"_id": obj_id}, {'$push': data})
         if not result.matched_count:
             raise BussinessException("error",400,subresource + " not found")
-        return self.db[resource].find_one({"_id": obj_id}, mask)[subresource][0], 200
-        
+        return self.db[resource].find_one({ subresource+"._id" :  sub_obj_id }, {subresource + ".$" : 1}).get(subresource)[0]
+
     # if the element doesn't exist throw error. Now it inserts new field
     def update_subdocument_array(self, obj_id, data, sub_obj_id, resource = None, subresource = None, projection = None):
         resource = resource if resource else self.resource
@@ -315,11 +315,11 @@ class SuperView(views.MethodView):
         sub_obj_id = convertToObjectId(sub_obj_id)
         if not sub_obj_id:
             raise BussinessException("error",400,resource + "Invalid " + subresource + " id")
+        result = self.db[resource].find_one({ subresource+"._id" :  sub_obj_id }, {subresource + ".$" : 1})
+        if not result:
+            raise BussinessException("error",400,resource + subresource + " not found")
         result = self.db[resource].update_one({ "_id": obj_id}, {'$pull': {subresource : {"_id" : sub_obj_id }}})
         # since we find with obj_id, it always matches and result.matchcount will be 1
-        result = self.db[resource].find_one({ subresource+"._id" :  sub_obj_id }, {subresource + ".$" : 1})
-        if result:
-            raise BussinessException("error",400,resource + subresource + " not found")
         return {"id": sub_obj_id, "detail": subresource  + " successfully removed"}, 200
 
     def retrieve_subdocument_array(self, obj_id, sub_obj_id, resource = None, subresource = None, projection = None):
@@ -359,6 +359,61 @@ class SuperView(views.MethodView):
             raise BussinessException("error",400,resource + " not found")
         return result, 200
 
+    # -------------  Array APIs ----------------------
+    #-------------------------------------------------------
+
+    # Different from subresource
+    # primitive objs like int, string...
+    # Don't have _id
+    # to delete need the exact obj to be the operation
+    # no update operation
+    # no retrive one element. Only retrive all the elements.
+    # no mask as primitive data
+    # support only 1st depth
+    # maintain at max 50 elements; due to performance. Value is just a guess.
+    # return value will be updated array for each operation, as each are considered as 
+        # updation to existing entity/field.
+
+
+    def insert_array(self, obj_id, data, resource = None, subresource = None):
+        resource = resource if resource else self.resource
+        subresource = subresource if subresource else self.subresource
+        obj_id = convertToObjectId(obj_id)
+        if not obj_id:
+            raise BussinessException("error",400,"Invalid " + resource + " id")
+        data = {
+            subresource : data
+        }
+        result = self.db[resource].update_one({"_id": obj_id}, {'$push': data})
+        if not result.matched_count:
+            raise BussinessException("error",400,subresource + " not found")
+        return self.db[resource].find_one({"_id": obj_id})[subresource], 200
+
+    def retrieve_array(self, obj_id, resource = None, subresource = None):
+        resource = resource if resource else self.resource
+        subresource = subresource if subresource else self.subresource
+        obj_id = convertToObjectId(obj_id)
+        if not obj_id:
+            raise BussinessException("error",400,"Invalid " + resource + " id")
+        result = self.db[resource].find_one({"_id": obj_id})
+        if not result:
+            raise BussinessException("error",400,resource + " list is empty")
+        result = result.get(subresource,None)
+        if not result:
+            raise BussinessException("error",400,resource + " not found")
+        return result, 200
+
+    # if the element to be removed is not already present, nothing will happen.
+    def remove_array(self, obj_id, value, resource = None, subresource = None):
+        resource = resource if resource else self.resource
+        subresource = subresource if subresource else self.subresource
+        obj_id = convertToObjectId(obj_id)
+        if not obj_id:
+            raise BussinessException("error",400,"Invalid " + resource + " id")
+        print(value)
+        self.db[resource].update_one({ "_id": obj_id}, {'$pull': {subresource : { '$in': [value] }}})
+        return self.db[resource].find_one({"_id": obj_id})[subresource], 200    
+
     #---------------------------- Static -------------------------------------
     # add gzip protocol
 
@@ -371,21 +426,21 @@ class SuperView(views.MethodView):
     # binary - the file itself
     # meta - meta data about file - like date of upload, user id
     # owner - owner of document; used for authz
+    # owerType - to be added
     # unique - used to identify uniqly which can be build from known fields; used for deleting old file
 
-    def delete_helper(self,unique):
-        resource = self.__static_collection
-        if not unique:
-            raise BussinessException("error",400, "Invalid file name")
-        result = self.db[resource].delete_one({"unique": unique})
-        if not result.deleted_count:
-            raise BussinessException("error",400, "File not found")
-        return None
+    # Structure of static collection return url
+    # doc_prefix - know which type of doc used for authz
+    # id - unique identifier of the file
 
-    def uploadStatic(self,file,delete,meta,owner,doc_prefix,unique):
-        
-        if delete:
-            return self.delete_helper(unique)
+    # if a resouce is an array of files dont use unique field
+    # Use unique only when you have an object (key: unique field, value: image)
+    # Setting unique param enables updation of the file with the same unique value, instead of
+    # insection.
+
+    # max param is set to denote the maximum number of files that can be uploaded in the case of 
+    # unlimited / non-named files. It is not considered in the case where unique is set
+    def uploadStatic(self,file,meta,owner,doc_prefix,unique,max):
 
         if file is None:
             raise BussinessException("error",400, "No file attached.")
@@ -399,10 +454,6 @@ class SuperView(views.MethodView):
         resource = self.__static_collection
         data = {}
 
-        if not unique:
-            raise BussinessException("upload API error",500, "Contact Admin")
-        data['unique'] = unique
-
         if file.filename == '':
             raise BussinessException("error",400, "No file selected")
         if not self.allowed_file(file.filename):
@@ -414,21 +465,27 @@ class SuperView(views.MethodView):
         data['meta'] = meta
         data['owner'] = owner
 
-        try:
-            # replace_one doc - https://api.mongodb.com/python/current/api/pymongo/collection.html#pymongo.collection.Collection.replace_one
-            result = self.db[resource].replace_one({"unique": unique},data, True)
-            if result.matched_count > 1:
-                pass # TODO log this part; dont throw error.
-        except Exception as e:
-            raise BussinessException("error",500, "Upload document failed")
+        if unique:     
+            data['unique'] = unique
 
-        obj_id = self.db[resource].find_one({"unique": unique}, {"_id": True})["_id"]
+            try:
+                # replace_one doc - https://api.mongodb.com/python/current/api/pymongo/collection.html#pymongo.collection.Collection.replace_one
+                result = self.db[resource].replace_one({"unique": unique},data, True)
+                if result.matched_count > 1:
+                    pass # TODO log this part; dont throw error.
+            except:
+                raise BussinessException("error",500, "Upload document failed")
+
+            obj_id = self.db[resource].find_one({"unique": unique}, {"_id": True})["_id"]
         
+        else: 
+             obj_id = self.db[resource].insert_one(data,{"_id": True}).inserted_id
+
         return "/"+doc_prefix+"/"+str(obj_id)
 
-    # using this the file url in the resource becomes stale.
-    # used only by Admin and incase of urgent.
-    def deleteStatic(self,id):
+    # Dont expose it as rest api. Only internal api should call to maintain sync with the resouce and the static image.
+    # used only by Admin as Rest api and incase of urgent.
+    def deleteStatic(self,type,id):
         resource = self.__static_collection
         obj_id = convertToObjectId(id)
         if not obj_id:
@@ -438,6 +495,14 @@ class SuperView(views.MethodView):
             raise BussinessException("error",400, "File not found")
         return {"url": type+"/"+id, "detail": "File successfully removed"}, 200
 
+    def deleteStaticUsingUnique(self,unique):
+        resource = self.__static_collection
+        if not unique:
+            raise BussinessException("error",400, "Invalid file name")
+        result = self.db[resource].delete_one({"unique": unique})
+        if not result.deleted_count:
+            raise BussinessException("error",400, "File not found")
+        return {"file": unique, "detail": "File successfully removed"}, 200
 
     # url format host+authz_type+fileId
     # authz_type to perform authz before database read
