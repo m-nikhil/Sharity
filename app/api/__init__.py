@@ -6,6 +6,7 @@ from .ngo.ngoBankDetailsView import NgoBankDetailsView
 from .ngo.ngoDocumentsView import NgoDocumentsView
 from .ngo.ngoRequirementsView import NgoRequirementsView
 from .ngo.ngoTransactionView import NgoTransactionView
+from .ngo.ngoImageView import NgoImageView
 from .cityView import CityView
 from .ngoTypeView import NgoTypeView
 from .transactionView import TransactionView

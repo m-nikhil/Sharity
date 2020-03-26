@@ -116,7 +116,7 @@ schemas:
     additionalProperties: false
     required: 
       - filename
-      - delete
+      - file
     properties:
       filename:
         type: "string"
@@ -124,9 +124,6 @@ schemas:
       file:
         type: "string"
         format: "binary"
-      delete:
-        type: boolean
-        default: false
 
   DocumentFileResponse:
     type: "object"
@@ -150,6 +147,23 @@ schemas:
       cancelledCheckLeaf:
         type: "string"
         format: "uri"
+
+  ImageFileRequest:
+    type: "object"
+    additionalProperties: false
+    required:
+      - file
+    properties:
+      file:
+        type: "string"
+        format: "binary"
+
+  ImageFileResponse:
+    type: "array"
+    items:
+      type: "string"
+
+
 
   requirementStatus:
     type: string
@@ -403,17 +417,28 @@ schemas:
     type: string
     format: base64
   
+
   StaticDelete:
-    type: "object"
-    additionalProperties: false
-    required:
-      - url
-    properties:
-      url:
-        type: string
-        format: uri
-      detail:
-        type: string
+    oneOf:
+      - type: "object"
+        additionalProperties: false
+        required:
+          - url
+        properties:
+          url:
+            type: string
+            format: uri
+          detail:
+            type: string
+      - type: "object"
+        additionalProperties: false
+        required:
+          - file
+        properties:
+          file:
+            type: string
+          detail:
+            type: string
 
 securitySchemes:
     jwt:

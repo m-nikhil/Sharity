@@ -43,6 +43,9 @@ rules:
     DELETE: [ngo:curr]
   '/ngo/<ngoId>/transaction':
     #GET: None
+  '/ngo/<ngoId>/images':
+    GET: [all]
+    POST: [ngo:curr]
 
   /city:
     #GET: None
@@ -73,3 +76,5 @@ rules:
 static_rules:
   ngoDocuments:
     GET: [ngo:curr]
+  ngoImage:
+    # GET: None

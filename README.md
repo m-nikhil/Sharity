@@ -33,3 +33,5 @@
 - search feature, geolocation
 - hash password
 - filtes on ngo,user,transaction admin filter, city...
+- list auth file
+- add me endpoint
