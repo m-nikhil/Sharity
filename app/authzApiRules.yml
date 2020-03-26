@@ -33,7 +33,9 @@ rules:
     DELETE: [ngo:curr]
   '/ngo/<ngoId>/documents':
     GET: [ngo:curr]
-    PUT: [ngo:curr]
+    POST: [ngo:curr]
+  '/ngo/{ngoId}/documents/{filename}':
+    DELETE: [ngo:curr]
   '/ngo/<ngoId>/requirements':
     #GET: None
     POST: [ngo:curr]
@@ -46,6 +48,8 @@ rules:
   '/ngo/<ngoId>/images':
     GET: [all]
     POST: [ngo:curr]
+  '/ngo/{ngoId}/images/{imageId}':
+    DELETE: [ngo:curr]
 
   /city:
     #GET: None
@@ -73,8 +77,14 @@ rules:
   /auth/login:
     #POST: None
 
+# comment and mark as None, if a static don't need authz.
+# [] denotes no roles expect global
 static_rules:
   ngoDocuments:
     GET: [ngo:curr]
+    DELETE: []
   ngoImage:
-    # GET: None
+    #GET: None
+    DELETE: []
+
+

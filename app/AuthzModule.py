@@ -64,9 +64,10 @@ class Authz():
                                 else:
                                         sys.exit("Error: Couldn't parse roles of authz file.")
 
+        # Add logging...
 
         # Point to consider:
-        # 1. if a rule for an url doesn't exist. It will raise exception
+        # 1. if a rule for an url, method doesn't exist. It will raise exception
         # 2. 'all' -> a default rule to allow all loggedin users
         def checkAuthz(self,request,token):
                 
@@ -113,6 +114,9 @@ class Authz():
                                         raise BussinessException("error",500,"Authz error; Contact Admin")
                 return False
 
+
+        # Point to consider:
+        # 2. if url doesn't exist or its method doesn't exist, authz will return true
         def checkStaticAuthz(self, request, token):
 
                 if self.__static_rules == None:
@@ -121,8 +125,6 @@ class Authz():
                 # the static rest api must be static/{type}/{id}
                 auth_type = request.view_args.get("type",None)
                 obj_id = request.view_args.get("id",None)
-
-                print(obj_id)
               
                 if auth_type is None or obj_id is None:
                         raise BussinessException("error",500,"Authz error; Contact Admin")
@@ -135,10 +137,10 @@ class Authz():
 
                 required_type = self.__static_rules.get(auth_type, None)
                 if not required_type:
-                        raise BussinessException("error",500,"Authz error; Contact Admin")
+                        return True  # if url don't exist, return true
                 authz_list = required_type.get(request.method,None)
                 if authz_list == None:
-                        raise BussinessException("error",500,"Authz error; Contact Admin")
+                        return True  # if method don't exist, return true
 
                 for authz in authz_list:
                         if authz == "all":
