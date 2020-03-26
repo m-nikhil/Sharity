@@ -66,7 +66,7 @@ class Authz():
 
 
         # Point to consider:
-        # 1. if a rule for an url+method does'nt exist. It will raise exception
+        # 1. if a rule for an url doesn't exist. It will raise exception
         # 2. 'all' -> a default rule to allow all loggedin users
         def checkAuthz(self,request,token):
                 
@@ -110,7 +110,7 @@ class Authz():
                                                 return True
                                 else:
                                         # check at application start and do sys.exit
-                                        raise BussinessException("error",500,"Authz error4; Contact Admin")
+                                        raise BussinessException("error",500,"Authz error; Contact Admin")
                 return False
 
         def checkStaticAuthz(self, request, token):
@@ -135,10 +135,10 @@ class Authz():
 
                 required_type = self.__static_rules.get(auth_type, None)
                 if not required_type:
-                        raise BussinessException("error",500,"Authz error1; Contact Admin")
+                        raise BussinessException("error",500,"Authz error; Contact Admin")
                 authz_list = required_type.get(request.method,None)
                 if authz_list == None:
-                        raise BussinessException("error",500,"Authz error2; Contact Admin")
+                        raise BussinessException("error",500,"Authz error; Contact Admin")
 
                 for authz in authz_list:
                         if authz == "all":
@@ -160,26 +160,6 @@ class Authz():
                                                 return True
                                 else:
                                         # check at application start and do sys.exit
-                                        raise BussinessException("error",500,"Authz error4; Contact Admin")
+                                        raise BussinessException("error",500,"Authz error; Contact Admin")
                 return False
 
-
-
-                
-
-
-
-
-
-
-
-                
-                
-
-                
-                
-                
-
-                
-
-                
