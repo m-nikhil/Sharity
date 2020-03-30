@@ -55,6 +55,9 @@ paths:
   '/static/{type}/{id}':
     $ref: "./staticapi.yml#static~1{type}~1{id}"
 
+  '/me':
+    $ref: "./meapi.yml#me"
+
   /auth/login:
     $ref: "./authapi.yml#login"
     

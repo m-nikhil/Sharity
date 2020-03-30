@@ -1,0 +1,19 @@
+me:
+    get:
+      summary: Info for a specific logged in user
+      operationId: app.api.ProfileView.get
+      tags:
+        - me
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/me"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yml#/schemas/Error"

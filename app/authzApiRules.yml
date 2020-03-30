@@ -74,6 +74,9 @@ rules:
     GET: []
     DELETE: []
 
+  '/me':
+    GET: [all]
+
   /auth/login:
     #POST: None
 

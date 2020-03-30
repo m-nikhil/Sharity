@@ -30,16 +30,20 @@ class AuthView(SuperView):
         db = self.getConnection()
         payload = {}
         if body['isNgo']:
-            result = db.ngo.find_one({'email':body['email'],'password':body['password']},{'_id':True})
+            result = db.ngo.find_one({'email':body['email'],'password':body['password']},{'_id':True, 'name': True})
             if not result:
                 raise BussinessException("error",400,"Check your username and passsword!")
             payload['id'] = str(result['_id'])
             payload['role'] = 'ngo'
+            payload['name'] = result['name']
+
         else:
-            result = db.user.find_one({'email':body['email'],'password':body['password']},{'_id':True,'isAdmin':True})
+            result = db.user.find_one({'email':body['email'],'password':body['password']},{'_id':True,'isAdmin':True, 'firstName': True, 'lastName': True})
             if not result:
                 raise BussinessException("error",400,"Check your username and passsword!")
             payload['id'] = str(result['_id'])
+            payload['firstName'] = result['firstName']
+            payload['lastName'] = result['lastName']
             if result.get('isAdmin',None):
                 payload['role'] = 'admin'
             else:
