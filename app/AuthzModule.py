@@ -129,6 +129,10 @@ class Authz():
                 if auth_type is None or obj_id is None:
                         raise BussinessException("error",500,"Authz error; Contact Admin")
 
+                obj_id = convertToObjectId(obj_id)
+                if not obj_id:
+                        raise BussinessException("error",400, "Invalid file id")
+
                 subject = json.loads(token['sub'])
                 role = subject['role']
                 user_id = subject['id']
@@ -142,23 +146,23 @@ class Authz():
                 if authz_list == None:
                         return True  # if method don't exist, return true
 
+                result = self.db[self.__static_collection].find_one({"_id": obj_id},{"_id": False, "owner": True, "auth_type": True})
+                if not result:
+                        raise BussinessException("error",400, "File not found") 
+
                 for authz in authz_list:
                         if authz == "all":
                                 return True
                         elif authz.find(":") == -1:
                                 if role == authz:
-                                        return True
+                                        if auth_type == result["auth_type"]:  # check if the user dint send wrong auth_type, which gains him access
+                                                                         # second and mandatory check 
+                                                return True
                         else:
                                 # check for curr attr
                                 values = authz.split(":")
                                 if values[1] == "curr":
-                                        obj_id = convertToObjectId(obj_id)
-                                        if not obj_id:
-                                                raise BussinessException("error",400,"Invalid File id")
-                                        result = self.db[self.__static_collection].find_one({"_id": obj_id},{"_id": False, "owner": True})
-                                        if not result:
-                                                raise BussinessException("error",400, "File not found") 
-                                        if user_id == result["owner"] and values[0] == role:
+                                        if user_id == result["owner"] and values[0] == role and result["auth_type"] == auth_type:
                                                 return True
                                 else:
                                         # check at application start and do sys.exit

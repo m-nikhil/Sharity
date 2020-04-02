@@ -372,18 +372,29 @@ schemas:
         default: false
 
   me: 
-    type: "object"
-    additionalProperties: false
-    properties:
-      id:
-        type: "string"
-        readOnly: true
-      firstName:
-        type: "string"
-      lastName:
-        type: "string"
-      role:
-        type: "string"
+    oneOf:
+        - type: "object"
+          additionalProperties: false
+          properties:
+            id:
+              type: "string"
+              readOnly: true
+            firstName:
+              type: "string"
+            lastName:
+              type: "string"
+            role:
+              type: "string"
+        - type: "object"
+          additionalProperties: false
+          properties:
+            id:
+              type: "string"
+              readOnly: true
+            name:
+              type: "string"
+            role:
+              type: "string"
 
 
   Error:

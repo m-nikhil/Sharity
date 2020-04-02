@@ -464,6 +464,7 @@ class SuperView(views.MethodView):
         data['binary'] = file.read()
         data['meta'] = meta
         data['owner'] = owner
+        data['auth_type'] = doc_prefix
 
         if unique:     
             data['unique'] = unique

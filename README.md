@@ -27,11 +27,10 @@
 
 
 ### To do sharity
-- image/documents static files
 - ngo approval
 - google/FB signin (P4)
-- search feature, geolocation
-- hash password
-- filtes on ngo,user,transaction admin filter, city...
+- search feature, geolocation (p2)
+- hash password (prod)
+- filtes on ngo,user,transaction admin filter, city... (p4)
+- filer on ngo requirement
 - list auth file
-- add me endpoint
