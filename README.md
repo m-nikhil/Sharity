@@ -3,6 +3,7 @@
 - Database used: mongoDB
 - mark todo things as 'TO-DO' (as is). Maintain same facilitates search.
 - preferred mongoUI : mongoDB compass
+- Mongo docker: docker run -d -p 27017:27017 mongo
 
 ## Installation Guide
 
@@ -25,12 +26,7 @@
 - index name,email of Ngo collection
 - no index in Ngo collection 
 
-
 ### To do sharity
 - ngo approval
-- google/FB signin (P4)
-- search feature, geolocation (p2)
+- search feature on geolocation (p2) [frontend ?]
 - hash password (prod)
-- filtes on ngo,user,transaction admin filter, city... (p4)
-- filer on ngo requirement
-- list auth file

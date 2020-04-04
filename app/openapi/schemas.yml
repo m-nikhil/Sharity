@@ -52,6 +52,7 @@ schemas:
         panNumber:
           type: "string"
 
+
   UserEditable:
     type: "object"
     additionalProperties: false
@@ -98,7 +99,6 @@ schemas:
         type: "string"
       PanNumber:
         type: "string"
-    additionalProperties: false
 
   DocumentEnum:
     type: string
@@ -168,7 +168,7 @@ schemas:
     enum: &REQUIREMENTSTATUS
       - completed
       - cancelled
-      - new
+      - ongoing
 
   requirement:
     type: "object"
@@ -226,7 +226,7 @@ schemas:
       city:
         type: "string"
 
-  Ngo:
+  NgoIncomingChanges:
     type: "object"
     additionalProperties: false
     properties:
@@ -284,6 +284,15 @@ schemas:
         items:
           $ref: "#schemas/requirement"
         readOnly: true
+
+  Ngo:
+    allOf:
+      - $ref: "#schemas/NgoIncomingChanges"
+      - type: "object"
+        additionalProperties: false
+        properties:
+          changes:
+            type: "boolean"
 
   NgoEditable:
       type: "object"
